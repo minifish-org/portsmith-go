@@ -1,0 +1,1413 @@
+{
+  "version": 1,
+  "source": ".cache/portsmith/dc1a6ec78e90f7167d7fe96ac53188088dfa4fca",
+  "files": [
+    {
+      "path": "bin/portsmith.mjs",
+      "sha256": "313ea5ce28d4d9cdbd55cfd110e9d26cbbe58491c2c8be014296eea8a868b4c2",
+      "lines": 2,
+      "test": false,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "../dist/cli.js",
+          "kind": "unresolved",
+          "typeOnly": false,
+          "line": 2
+        }
+      ]
+    },
+    {
+      "path": "dependency-reference/API.go.txt",
+      "sha256": "d7e7d91ff705b3ec624062ddce06943156342a4eb733ca76c87d8e3c8eb4d8e8",
+      "lines": 123,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+      "sha256": "efaea9f3f4a153d0dba5cc2db77b74e4ebf11f106f0d3ca30a0ad3830552f5b0",
+      "lines": 94,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/docs/sdk/README.md.txt",
+      "sha256": "a949b02123ef854aa8cc4e2897bdc5f32969e641756d7520e754477d8a2ca416",
+      "lines": 222,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+      "sha256": "410a0f7b5673c1e0cf1eff03005b88d31fce10ccd098635be110446cd4628111",
+      "lines": 143,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+      "sha256": "67b569d8c9fe2c7855012b61657a381b2b03268f7d78b1f5abc07a0966da7cef",
+      "lines": 71,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+      "sha256": "b7ebec9c2d7d054d82abf6b36f2f6109e8a6a1d3c6cfcbfedbfd83ea273d301a",
+      "lines": 103,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/LICENSE.txt",
+      "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef",
+      "lines": 662,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+      "sha256": "a8463e08b153f26a18355a11a4618e9c2052d862b55318e436e7f7f2a7dd658e",
+      "lines": 1064,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+      "sha256": "fa611a340f3f630a5569ff2c0b2e1bf7bf9ed1e9b2ca64bf6f2d53ae7894b077",
+      "lines": 2087,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+      "sha256": "64fc6de4b602d29aeaba8cad1a9a6e0b49634d5fce6bb930cab33dbc9b2abb74",
+      "lines": 706,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+      "sha256": "07863cd6d712db8c14ee73d8972b0dba9964daf71a10a504b2c2deb082115423",
+      "lines": 996,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+      "sha256": "8802d862c1ea7be9341398b7bcdd193a8ec73d478406f5db371af5b0299f9596",
+      "lines": 277,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+      "sha256": "55547cc88a876b1fde5970aee6d08ea57f61ea0b02eaf84c15c1fc9e04395f0c",
+      "lines": 1775,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt",
+      "sha256": "f20f99368bc618206f896c0c31172b0a60b5af5eab9f76db70bc5908a162a736",
+      "lines": 822,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+      "sha256": "d7b8dcdf9c01e93105054d1a075c33429c4be2337c22cb84fd4a3f07a862c079",
+      "lines": 41,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+      "sha256": "5d980ba1090cd1e160c6d9ad73474d8a02d13cdd63f782250993526600d1116f",
+      "lines": 565,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+      "sha256": "d2a6d7a3d88fc7a9d9d0624803c47ec1d8bef21ed135562d1f234c7dbeb26096",
+      "lines": 1347,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "examples/event-stream/source/packages/ai/src/utils/event-stream.ts",
+      "sha256": "147084657f76665ff7d6c8dcd6eb0745149e3aaee3e7b9c272b315a1b5679386",
+      "lines": 110,
+      "test": false,
+      "exports": [
+        "EventStream",
+        "AssistantMessageEventStream",
+        "createAssistantMessageEventStream"
+      ],
+      "imports": [
+        {
+          "specifier": "../types.ts",
+          "kind": "unresolved",
+          "typeOnly": true,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "examples/event-stream/source/packages/ai/test/event-stream.test.ts",
+      "sha256": "4bd0da838196e7030b3df87160e6a09faf07b157de3571c308cd94bdde153b5c",
+      "lines": 94,
+      "test": true,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "vitest",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "../src/utils/event-stream.ts",
+          "kind": "internal",
+          "target": "examples/event-stream/source/packages/ai/src/utils/event-stream.ts",
+          "typeOnly": false,
+          "line": 2
+        }
+      ]
+    },
+    {
+      "path": "src/agent.ts",
+      "sha256": "2833f1d1d5673af4d36333c11931183b01938870a5d5dc011ac4780e3613aae4",
+      "lines": 267,
+      "test": false,
+      "exports": [
+        "runPort"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "@earendil-works/pi-ai",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "specifier": "@earendil-works/pi-coding-agent",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 17
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 18
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 19
+        },
+        {
+          "specifier": "./diagnostics.js",
+          "kind": "internal",
+          "target": "src/diagnostics.ts",
+          "typeOnly": false,
+          "line": 20
+        },
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 21
+        }
+      ]
+    },
+    {
+      "path": "src/analyze.ts",
+      "sha256": "19fc809d393e9237364a8693c5337cb46ad1f7145898ad0a7f52c51143d31355",
+      "lines": 295,
+      "test": false,
+      "exports": [
+        "ImportEdge",
+        "SourceFile",
+        "Analysis",
+        "components",
+        "analyze",
+        "saveAnalysis"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "typescript-api",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 4
+        }
+      ]
+    },
+    {
+      "path": "src/cli.ts",
+      "sha256": "83ce5b822a8d0562b4d6b52fc13d977b061af9bc9be01c59d20b810b3a72986c",
+      "lines": 316,
+      "test": false,
+      "exports": [
+        "main"
+      ],
+      "imports": [
+        {
+          "specifier": "node:util",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "./analyze.js",
+          "kind": "internal",
+          "target": "src/analyze.ts",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "./plan.js",
+          "kind": "internal",
+          "target": "src/plan.ts",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "specifier": "./agent.js",
+          "kind": "internal",
+          "target": "src/agent.ts",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "specifier": "./model.js",
+          "kind": "internal",
+          "target": "src/model.ts",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "specifier": "./state.js",
+          "kind": "internal",
+          "target": "src/state.ts",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "./migrate.js",
+          "kind": "internal",
+          "target": "src/migrate.ts",
+          "typeOnly": false,
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "src/demo.ts",
+      "sha256": "0bd4a061010b9c6dc52d6127ebf47b694e38c98bf3a0523913301020bdb4bac3",
+      "lines": 36,
+      "test": false,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:url",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "specifier": "./state.js",
+          "kind": "internal",
+          "target": "src/state.ts",
+          "typeOnly": false,
+          "line": 6
+        }
+      ]
+    },
+    {
+      "path": "src/diagnostics.ts",
+      "sha256": "0d36160286c41c782a3f4f4c15684852677b793ffade79f470ced34e87e57275",
+      "lines": 52,
+      "test": false,
+      "exports": [
+        "processDiagnostics",
+        "verificationDiagnostics"
+      ],
+      "imports": [
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": true,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "src/event-stream.ts",
+      "sha256": "c26ace00d0ad74cf74a84eeba42e71caab65c0fbfbf67f7a471dc4383fc56d8a",
+      "lines": 155,
+      "test": false,
+      "exports": [
+        "cases",
+        "eventStreamOracle",
+        "goOracle"
+      ],
+      "imports": [
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:url",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "pathToFileURL(modulePath).href",
+          "kind": "computed",
+          "typeOnly": false,
+          "line": 91
+        }
+      ]
+    },
+    {
+      "path": "src/files.ts",
+      "sha256": "9d0919826424a2d82e6d5f884c0163947f28381419b739b77d7e6bd321aba90e",
+      "lines": 119,
+      "test": false,
+      "exports": [
+        "hash",
+        "relativeName",
+        "checkedFile",
+        "readJson",
+        "atomicJson",
+        "withLock",
+        "snapshotFiles",
+        "copyFiles"
+      ],
+      "imports": [
+        {
+          "specifier": "node:crypto",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "src/migrate.ts",
+      "sha256": "47078609dde343b0bfec7221369ccee3a517546c7ad96b47ffcee34a990f3f80",
+      "lines": 668,
+      "test": false,
+      "exports": [
+        "git",
+        "exists",
+        "dirty",
+        "allows",
+        "commit",
+        "assertFiles",
+        "inspectMigration",
+        "MigrationOptions",
+        "migrate"
+      ],
+      "imports": [
+        {
+          "specifier": "node:child_process",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:util",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "specifier": "./process.js",
+          "kind": "internal",
+          "target": "src/process.ts",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "specifier": "./plan.js",
+          "kind": "internal",
+          "target": "src/plan.ts",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 22
+        },
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 23
+        },
+        {
+          "specifier": "./diagnostics.js",
+          "kind": "internal",
+          "target": "src/diagnostics.ts",
+          "typeOnly": false,
+          "line": 24
+        },
+        {
+          "specifier": "./modules.js",
+          "kind": "internal",
+          "target": "src/modules.ts",
+          "typeOnly": false,
+          "line": 222
+        }
+      ]
+    },
+    {
+      "path": "src/model.ts",
+      "sha256": "20deeacaef9989ee975c81abd126d343959261a3c606b2fae3e80b5ec51bf64e",
+      "lines": 105,
+      "test": false,
+      "exports": [
+        "modelLimits",
+        "loadLocalEnv",
+        "configuredModel"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:process",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "@earendil-works/pi-coding-agent",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 5
+        }
+      ]
+    },
+    {
+      "path": "src/modules.ts",
+      "sha256": "8dc955c4f86caa5efcd8e08ae0e51d29a3c518d44a19e4b5b846bfd43623f74d",
+      "lines": 1105,
+      "test": false,
+      "exports": [
+        "inspectModules",
+        "migrateModules"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:crypto",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "specifier": "./migrate.js",
+          "kind": "internal",
+          "target": "src/migrate.ts",
+          "typeOnly": false,
+          "line": 22
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 28
+        },
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 29
+        },
+        {
+          "specifier": "./process.js",
+          "kind": "internal",
+          "target": "src/process.ts",
+          "typeOnly": false,
+          "line": 30
+        },
+        {
+          "specifier": "./diagnostics.js",
+          "kind": "internal",
+          "target": "src/diagnostics.ts",
+          "typeOnly": false,
+          "line": 31
+        }
+      ]
+    },
+    {
+      "path": "src/oracle-worker.ts",
+      "sha256": "d382a9288d87a739ce6c74e740da457c18c79d16f90cfb1df83177338d127de4",
+      "lines": 9,
+      "test": false,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "./event-stream.js",
+          "kind": "internal",
+          "target": "src/event-stream.ts",
+          "typeOnly": false,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "src/plan.ts",
+      "sha256": "c8aaad7187c586a7ff91b86eba22265f9a419d150eafd838a48d48fd63d7fd1d",
+      "lines": 248,
+      "test": false,
+      "exports": [
+        "DEFAULT_RULES",
+        "Unit",
+        "Plan",
+        "packageCycles",
+        "createPlan",
+        "loadPlan",
+        "selectUnit",
+        "planDigest"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "./analyze.js",
+          "kind": "internal",
+          "target": "src/analyze.ts",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 4
+        }
+      ]
+    },
+    {
+      "path": "src/process.ts",
+      "sha256": "788f4b059607a1c336aa432e1e2b6f5be6bafa7d3a2129d167959be3ba53322e",
+      "lines": 146,
+      "test": false,
+      "exports": [
+        "ProcessResult",
+        "cleanEnv",
+        "execute",
+        "executeGo",
+        "testResults",
+        "succeeded"
+      ],
+      "imports": [
+        {
+          "specifier": "node:child_process",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "src/state.ts",
+      "sha256": "eaa9c175f7a25088e3d0eee32890f9da520cf2c57f40e74120a6d9db8b7d740f",
+      "lines": 114,
+      "test": false,
+      "exports": [
+        "taskStatus",
+        "acceptTask",
+        "planStatus"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "specifier": "./verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "./plan.js",
+          "kind": "internal",
+          "target": "src/plan.ts",
+          "typeOnly": false,
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "src/verify.ts",
+      "sha256": "8fbb8b587ff99714e075d2c340a69fb287fc0d0cdff767232c53dedbd3ec6ee6",
+      "lines": 353,
+      "test": false,
+      "exports": [
+        "VERIFIER_VERSION",
+        "Verification",
+        "judgeCheck",
+        "verifyPort",
+        "currentVerification"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:os",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:url",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "specifier": "./event-stream.js",
+          "kind": "internal",
+          "target": "src/event-stream.ts",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "specifier": "./workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "specifier": "./process.js",
+          "kind": "internal",
+          "target": "src/process.ts",
+          "typeOnly": false,
+          "line": 14
+        }
+      ]
+    },
+    {
+      "path": "src/workspace.ts",
+      "sha256": "ec1b68c32f0d690645c207553b318880d94e82bc832c0aa582942f5fcfa8f1ba",
+      "lines": 321,
+      "test": false,
+      "exports": [
+        "hash",
+        "checkedFile",
+        "PortTask",
+        "EVENT_GOAL",
+        "prepareTask",
+        "loadTask",
+        "writeCandidate",
+        "editCandidate",
+        "candidateFiles",
+        "fingerprint"
+      ],
+      "imports": [
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "specifier": "node:crypto",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 20
+        },
+        {
+          "specifier": "./plan.js",
+          "kind": "internal",
+          "target": "src/plan.ts",
+          "typeOnly": false,
+          "line": 21
+        },
+        {
+          "specifier": "./files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 22
+        }
+      ]
+    },
+    {
+      "path": "test/agent.test.ts",
+      "sha256": "f3d370d3928e67bfc2c4d94ebfdcf5524fd2408eed901ba178c9b36d650becdc",
+      "lines": 555,
+      "test": true,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "node:assert/strict",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:events",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:http",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "node:os",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "specifier": "node:test",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "specifier": "@earendil-works/pi-coding-agent",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "specifier": "../src/agent.js",
+          "kind": "internal",
+          "target": "src/agent.ts",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "specifier": "../src/model.js",
+          "kind": "internal",
+          "target": "src/model.ts",
+          "typeOnly": false,
+          "line": 17
+        },
+        {
+          "specifier": "../src/workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 23
+        }
+      ]
+    },
+    {
+      "path": "test/migrate.test.ts",
+      "sha256": "9cf2734a991647be5c2581d2b8bc706550e3d95b5c8807b3422e7e5352928aa7",
+      "lines": 297,
+      "test": true,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "node:assert/strict",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:child_process",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:util",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "node:os",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "specifier": "node:test",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "specifier": "../src/analyze.js",
+          "kind": "internal",
+          "target": "src/analyze.ts",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "specifier": "../src/plan.js",
+          "kind": "internal",
+          "target": "src/plan.ts",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "specifier": "../src/migrate.js",
+          "kind": "internal",
+          "target": "src/migrate.ts",
+          "typeOnly": false,
+          "line": 10
+        },
+        {
+          "specifier": "../src/workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "../src/files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 12
+        }
+      ]
+    },
+    {
+      "path": "test/model.test.ts",
+      "sha256": "ba61938574b509bd7f1decc4229c1e8cd67dd8e27645f5c42a121b0912b87d4e",
+      "lines": 82,
+      "test": true,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "node:assert/strict",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:child_process",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:util",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "node:os",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "specifier": "node:test",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "specifier": "../src/model.js",
+          "kind": "internal",
+          "target": "src/model.ts",
+          "typeOnly": false,
+          "line": 8
+        }
+      ]
+    },
+    {
+      "path": "test/modules.test.ts",
+      "sha256": "6299ab11d702551778f939dc14b6704fbaaa5985833844a10a4bc0b160319be3",
+      "lines": 843,
+      "test": true,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "node:assert/strict",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:child_process",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:util",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 11
+        },
+        {
+          "specifier": "node:os",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 12
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 13
+        },
+        {
+          "specifier": "node:test",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "specifier": "../src/analyze.js",
+          "kind": "internal",
+          "target": "src/analyze.ts",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "specifier": "../src/files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "specifier": "../src/migrate.js",
+          "kind": "internal",
+          "target": "src/migrate.ts",
+          "typeOnly": false,
+          "line": 17
+        },
+        {
+          "specifier": "../src/modules.js",
+          "kind": "internal",
+          "target": "src/modules.ts",
+          "typeOnly": false,
+          "line": 18
+        },
+        {
+          "specifier": "../src/workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 19
+        }
+      ]
+    },
+    {
+      "path": "test/workflow.test.ts",
+      "sha256": "89b4e2bfb1e12bb8291cc602842032e6d455410c480afea831625a7d30548eb3",
+      "lines": 462,
+      "test": true,
+      "exports": [],
+      "imports": [
+        {
+          "specifier": "node:assert/strict",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "node:fs/promises",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "node:os",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 3
+        },
+        {
+          "specifier": "node:path",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 4
+        },
+        {
+          "specifier": "node:test",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 5
+        },
+        {
+          "specifier": "../src/analyze.js",
+          "kind": "internal",
+          "target": "src/analyze.ts",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "specifier": "../src/plan.js",
+          "kind": "internal",
+          "target": "src/plan.ts",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "specifier": "../src/files.js",
+          "kind": "internal",
+          "target": "src/files.ts",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "specifier": "../src/workspace.js",
+          "kind": "internal",
+          "target": "src/workspace.ts",
+          "typeOnly": false,
+          "line": 14
+        },
+        {
+          "specifier": "../src/verify.js",
+          "kind": "internal",
+          "target": "src/verify.ts",
+          "typeOnly": false,
+          "line": 15
+        },
+        {
+          "specifier": "../src/state.js",
+          "kind": "internal",
+          "target": "src/state.ts",
+          "typeOnly": false,
+          "line": 16
+        },
+        {
+          "specifier": "../src/process.js",
+          "kind": "internal",
+          "target": "src/process.ts",
+          "typeOnly": false,
+          "line": 17
+        }
+      ]
+    }
+  ],
+  "cycles": [
+    [
+      "src/migrate.ts",
+      "src/modules.ts"
+    ]
+  ],
+  "warnings": [],
+  "configs": [
+    {
+      "path": "package.json",
+      "sha256": "ba087979e87f0c85fe4eabe5f5b038e3856c4d7ca73aeada5dc80019a0da96d6"
+    },
+    {
+      "path": "tsconfig.build.json",
+      "sha256": "e2de61a089955ded6c6a35cc6f6d748b74623f296ef8c5a4d671ff4b1352bffa"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "e6528d5305b098424b69be26b8319717c84cc3dcc1d67dfe4063079deed70ccb"
+    }
+  ]
+}

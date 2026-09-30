@@ -1,0 +1,62 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/dop251/goja"
+	"os"
+	"reflect"
+)
+
+func main() {
+	if len(os.Args) != 4 {
+		panic("compiler, TS source and expected traces required")
+	}
+	compiler, e := os.ReadFile(os.Args[1])
+	check(e)
+	source, e := os.ReadFile(os.Args[2])
+	check(e)
+	expected, e := os.ReadFile(os.Args[3])
+	check(e)
+	vm := goja.New()
+	_, e = vm.RunString(string(compiler))
+	check(e)
+	_, e = vm.RunString(`
+ var files={"/probe/src/value.ts":"export interface V {x: number}"};
+ var host={useCaseSensitiveFileNames:true,readFile:p=>files[p],fileExists:p=>p in files,directoryExists:p=>p==="/probe"||p==="/probe/src",getCurrentDirectory:()=>"/probe",getDirectories:()=>[],readDirectory:()=>[]};
+ var cfg=ts.parseJsonConfigFileContent({compilerOptions:{baseUrl:".",paths:{"@app/*":["src/*"]}}},host,"/probe");
+ var resolved=ts.resolveModuleName("@app/value","/probe/main.ts",cfg.options,host).resolvedModule;
+ if(!resolved || resolved.resolvedFileName!=="/probe/src/value.ts")throw Error("tsconfig alias resolution failed");
+ var ast=ts.createSourceFile("x.ts","import type {X} from './x'; export interface A {x:X}",ts.ScriptTarget.Latest,true);
+ if(ast.statements.length!==2 || !ast.statements[0].importClause.isTypeOnly)throw Error("AST lost type-only import");
+ if(!Symbol.asyncIterator)Object.defineProperty(Symbol,"asyncIterator",{value:Symbol("Symbol.asyncIterator")});
+ var exports={};`)
+	check(e)
+	check(vm.Set("sourceText", string(source)))
+	check(vm.Set("casesText", string(expected)))
+	_, e = vm.RunString(`eval(ts.transpileModule(sourceText,{compilerOptions:{target:ts.ScriptTarget.ES5,module:ts.ModuleKind.CommonJS}}).outputText)`)
+	check(e)
+	driver := `async function run(){var golden=[];for(const c of JSON.parse(casesText)){const s=new exports.EventStream(n=>n===c.complete,n=>n);const iterator=s[Symbol.asyncIterator]();const waiting=[],trace=[];const item=v=>({done:v.done===true,value:v.done?0:v.value});for(const step of c.steps){switch(step.op){case "push":s.push(step.value);break;case "end":s.end(step.value);break;case "next":trace.push(item(await iterator.next()));break;case "wait":waiting.push(s[Symbol.asyncIterator]().next());break;case "take":trace.push(item(await waiting.shift()));break;case "result":trace.push({result:await s.result()});}}golden.push({...c,expected:trace});}return golden;}var result,error;run().then(v=>result=JSON.stringify(v),e=>error=String(e));`
+	check(vm.Set("driver", driver))
+	_, e = vm.RunString(`eval(ts.transpileModule(driver,{compilerOptions:{target:ts.ScriptTarget.ES5,module:ts.ModuleKind.CommonJS}}).outputText)`)
+	check(e)
+	if v := vm.Get("error"); v != nil && !goja.IsUndefined(v) {
+		panic(v.String())
+	}
+	result := vm.Get("result")
+	if result == nil || goja.IsUndefined(result) {
+		panic("oracle promise did not settle")
+	}
+	var want, got any
+	check(json.Unmarshal(expected, &want))
+	check(json.Unmarshal([]byte(result.String()), &got))
+	if !reflect.DeepEqual(want, got) {
+		panic("live Goja traces differ from TS oracle")
+	}
+	fmt.Println(`{"typescript":"5.9.3","ast":true,"tsconfigResolution":true,"asyncOracleCases":7,"cgo":false}`)
+}
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}

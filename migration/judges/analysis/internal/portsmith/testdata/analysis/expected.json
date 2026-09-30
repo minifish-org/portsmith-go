@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "source": "<fixture>",
+  "files": [
+    {
+      "path": "cycle/a.ts",
+      "sha256": "78fd763fb31179d16c2e6913acb7cb89caa4d3a92611962fcf165dd6827e9240",
+      "lines": 2,
+      "test": false,
+      "exports": [
+        "a"
+      ],
+      "imports": [
+        {
+          "specifier": "./b.js",
+          "kind": "internal",
+          "target": "cycle/b.ts",
+          "typeOnly": false,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "cycle/b.ts",
+      "sha256": "460037913078be30436fc43aa2b87a44c8dc8a865a02fab91b9c30fabc21d090",
+      "lines": 2,
+      "test": false,
+      "exports": [
+        "b"
+      ],
+      "imports": [
+        {
+          "specifier": "./a.js",
+          "kind": "internal",
+          "target": "cycle/a.ts",
+          "typeOnly": false,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "legacy/require.cts",
+      "sha256": "f76fae63a81fdb0ce09b0c5f3c2a83aa180ca517d41e2dc887d55715ef45f590",
+      "lines": 2,
+      "test": false,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        {
+          "specifier": "../src/types.js",
+          "kind": "internal",
+          "target": "src/types.ts",
+          "typeOnly": false,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "src/index.ts",
+      "sha256": "89a31f76c55a0cc9c6097a567be9f1afa2f764da4880ee5348364430c1f2dd86",
+      "lines": 11,
+      "test": false,
+      "exports": [
+        "answer",
+        "Shape",
+        "Missing",
+        "result"
+      ],
+      "imports": [
+        {
+          "specifier": "@src/value",
+          "kind": "internal",
+          "target": "src/value.ts",
+          "typeOnly": false,
+          "line": 1
+        },
+        {
+          "specifier": "./value.js",
+          "kind": "internal",
+          "target": "src/value.ts",
+          "typeOnly": false,
+          "line": 2
+        },
+        {
+          "specifier": "./types.js",
+          "kind": "internal",
+          "target": "src/types.ts",
+          "typeOnly": true,
+          "line": 3
+        },
+        {
+          "specifier": "./absent.js",
+          "kind": "unresolved",
+          "typeOnly": true,
+          "line": 4
+        },
+        {
+          "specifier": "name",
+          "kind": "computed",
+          "typeOnly": false,
+          "line": 6
+        },
+        {
+          "specifier": "node:fs",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 7
+        },
+        {
+          "specifier": "third-party",
+          "kind": "external",
+          "typeOnly": false,
+          "line": 8
+        },
+        {
+          "specifier": "fixture-workspace/missing",
+          "kind": "unresolved",
+          "typeOnly": false,
+          "line": 9
+        },
+        {
+          "specifier": "@src/missing",
+          "kind": "unresolved",
+          "typeOnly": false,
+          "line": 10
+        }
+      ]
+    },
+    {
+      "path": "src/types.ts",
+      "sha256": "def06374fa7bf989e07f85a09bf15296ddd82f3a0319e32380f4588ffbb5f18d",
+      "lines": 2,
+      "test": false,
+      "exports": [
+        "Shape",
+        "Numberish"
+      ],
+      "imports": []
+    },
+    {
+      "path": "src/value.ts",
+      "sha256": "c2c5fa09c87f73e9cbe9ceed2802d406f0c0815dcdf11973c02009a1d46dde55",
+      "lines": 3,
+      "test": false,
+      "exports": [
+        "value",
+        "default"
+      ],
+      "imports": [
+        {
+          "specifier": "./types.js",
+          "kind": "internal",
+          "target": "src/types.ts",
+          "typeOnly": true,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "tests/value.test.ts",
+      "sha256": "f6f1e0ec4ec8a8e97cbea3d2171a1894f649b561f5ab1da049cd543be6a939a2",
+      "lines": 2,
+      "test": true,
+      "exports": [
+        "check"
+      ],
+      "imports": [
+        {
+          "specifier": "../src/value.js",
+          "kind": "internal",
+          "target": "src/value.ts",
+          "typeOnly": false,
+          "line": 1
+        }
+      ]
+    },
+    {
+      "path": "types.d.ts",
+      "sha256": "c990ef39b8ffc9062ea2f9848a98d9a34e236388ec364d3e706fa6d2337ffeb0",
+      "lines": 1,
+      "test": false,
+      "exports": [],
+      "imports": []
+    },
+    {
+      "path": "view/component.tsx",
+      "sha256": "12074969dcb2fac44a4f5f15c423c2b97dfb36d215fd5a91bc08344184d1a8c5",
+      "lines": 2,
+      "test": false,
+      "exports": [
+        "Component"
+      ],
+      "imports": [
+        {
+          "specifier": "../src/types.js",
+          "kind": "internal",
+          "target": "src/types.ts",
+          "typeOnly": true,
+          "line": 1
+        }
+      ]
+    }
+  ],
+  "cycles": [
+    [
+      "cycle/a.ts",
+      "cycle/b.ts"
+    ]
+  ],
+  "warnings": [],
+  "configs": [
+    {
+      "path": "package.json",
+      "sha256": "5ea38992f5001e0aa4b23a9b8ad164f629f8545cea29f92f9b260b204674d603"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "0973306982097480d9496bfe716b45eaf208b4e37d11b6acdaf45206a0637f43"
+    }
+  ]
+}

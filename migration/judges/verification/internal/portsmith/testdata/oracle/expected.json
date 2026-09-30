@@ -1,0 +1,310 @@
+[
+  {
+    "name": "completion retains event and ignores later pushes",
+    "complete": 3,
+    "steps": [
+      {
+        "op": "push",
+        "value": 1
+      },
+      {
+        "op": "push",
+        "value": 2
+      },
+      {
+        "op": "push",
+        "value": 3
+      },
+      {
+        "op": "push",
+        "value": 4
+      },
+      {
+        "op": "result"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      }
+    ],
+    "expected": [
+      {
+        "result": 3
+      },
+      {
+        "done": false,
+        "value": 1
+      },
+      {
+        "done": false,
+        "value": 2
+      },
+      {
+        "done": false,
+        "value": 3
+      },
+      {
+        "done": true,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "name": "interleaved draining",
+    "complete": -1,
+    "steps": [
+      {
+        "op": "push",
+        "value": 1
+      },
+      {
+        "op": "push",
+        "value": 2
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "push",
+        "value": 3
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "end",
+        "value": 7
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "result"
+      }
+    ],
+    "expected": [
+      {
+        "done": false,
+        "value": 1
+      },
+      {
+        "done": false,
+        "value": 2
+      },
+      {
+        "done": false,
+        "value": 3
+      },
+      {
+        "done": true,
+        "value": 0
+      },
+      {
+        "result": 7
+      }
+    ]
+  },
+  {
+    "name": "explicit end preserves queue",
+    "complete": -1,
+    "steps": [
+      {
+        "op": "push",
+        "value": 5
+      },
+      {
+        "op": "push",
+        "value": 6
+      },
+      {
+        "op": "end",
+        "value": 42
+      },
+      {
+        "op": "push",
+        "value": 7
+      },
+      {
+        "op": "result"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      }
+    ],
+    "expected": [
+      {
+        "result": 42
+      },
+      {
+        "done": false,
+        "value": 5
+      },
+      {
+        "done": false,
+        "value": 6
+      },
+      {
+        "done": true,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "name": "registered waiters are FIFO",
+    "complete": -1,
+    "steps": [
+      {
+        "op": "wait"
+      },
+      {
+        "op": "wait"
+      },
+      {
+        "op": "push",
+        "value": 7
+      },
+      {
+        "op": "push",
+        "value": 8
+      },
+      {
+        "op": "take"
+      },
+      {
+        "op": "take"
+      },
+      {
+        "op": "end"
+      },
+      {
+        "op": "next"
+      }
+    ],
+    "expected": [
+      {
+        "done": false,
+        "value": 7
+      },
+      {
+        "done": false,
+        "value": 8
+      },
+      {
+        "done": true,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "name": "end without result wakes waiters",
+    "complete": -1,
+    "steps": [
+      {
+        "op": "wait"
+      },
+      {
+        "op": "wait"
+      },
+      {
+        "op": "end"
+      },
+      {
+        "op": "take"
+      },
+      {
+        "op": "take"
+      }
+    ],
+    "expected": [
+      {
+        "done": true,
+        "value": 0
+      },
+      {
+        "done": true,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "name": "first result wins",
+    "complete": 3,
+    "steps": [
+      {
+        "op": "push",
+        "value": 3
+      },
+      {
+        "op": "end",
+        "value": 99
+      },
+      {
+        "op": "result"
+      },
+      {
+        "op": "next"
+      },
+      {
+        "op": "next"
+      }
+    ],
+    "expected": [
+      {
+        "result": 3
+      },
+      {
+        "done": false,
+        "value": 3
+      },
+      {
+        "done": true,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "name": "end can later resolve an absent result",
+    "complete": -1,
+    "steps": [
+      {
+        "op": "end"
+      },
+      {
+        "op": "end",
+        "value": 0
+      },
+      {
+        "op": "result"
+      },
+      {
+        "op": "next"
+      }
+    ],
+    "expected": [
+      {
+        "result": 0
+      },
+      {
+        "done": true,
+        "value": 0
+      }
+    ]
+  }
+]

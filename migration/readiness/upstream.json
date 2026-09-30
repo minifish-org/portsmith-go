@@ -1,0 +1,21 @@
+{
+  "at": "2026-09-30T16:03:07.493Z",
+  "results": [
+    {
+      "mode": "v1",
+      "status": "passed",
+      "generatorCalls": 1
+    },
+    {
+      "mode": "v2",
+      "status": "passed",
+      "generatorCalls": 2
+    },
+    {
+      "mode": "additive",
+      "status": "passed",
+      "generatorCalls": 1
+    }
+  ],
+  "paidModelCalls": 0
+}

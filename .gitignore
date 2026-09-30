@@ -1,0 +1,8 @@
+.cache/
+.portsmith/
+bin/
+.env
+.env.*
+!.env.example
+*.test
+.DS_Store

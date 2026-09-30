@@ -1,0 +1,37 @@
+{
+  "portsmith": {
+    "repository": "https://github.com/minifish-org/portsmith.git",
+    "revision": "dc1a6ec78e90f7167d7fe96ac53188088dfa4fca"
+  },
+  "pith": {
+    "repository": "https://github.com/minifish-org/pith.git",
+    "revision": "a50c87d65cf1e3eb481e5110d5827c8ce4f7dc89",
+    "version": "v0.0.0-20260930152022-a50c87d65cf1"
+  },
+  "goja": {
+    "module": "github.com/dop251/goja",
+    "version": "v0.0.0-20260926152631-39ec2650adc9"
+  },
+  "typescript": {
+    "version": "5.9.3",
+    "sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675"
+  },
+  "referenceFiles": [
+    "references/pith/packages/coding-agent/sdk.go.txt",
+    "references/pith/packages/coding-agent/agent_session.go.txt",
+    "references/pith/packages/coding-agent/tool_registry.go.txt",
+    "references/pith/packages/coding-agent/session_manager.go.txt",
+    "references/pith/docs/sdk/README.md.txt",
+    "references/pith/docs/sdk/compatibility.md.txt",
+    "references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+    "references/pith/examples/embedded-sdk/events/main.go.txt",
+    "references/pith/examples/embedded-sdk/resume/main.go.txt",
+    "references/pith/LICENSE.txt",
+    "references/pith/packages/coding-agent/model_runtime.go.txt",
+    "references/pith/packages/coding-agent/resource_loader.go.txt",
+    "references/pith/packages/coding-agent/tools.go.txt",
+    "references/pith/packages/coding-agent/tool_hooks.go.txt",
+    "references/pith/packages/coding-agent/resilience_test.go.txt",
+    "references/pith/packages/coding-agent/session_test.go.txt"
+  ]
+}

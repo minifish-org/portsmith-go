@@ -1,0 +1,28 @@
+{
+  "source": {
+    "repository": "https://github.com/minifish-org/portsmith.git",
+    "revision": "dc1a6ec78e90f7167d7fe96ac53188088dfa4fca"
+  },
+  "backend": {
+    "repository": "https://github.com/minifish-org/pith.git",
+    "revision": "a50c87d65cf1e3eb481e5110d5827c8ce4f7dc89",
+    "version": "v0.0.0-20260930152022-a50c87d65cf1"
+  },
+  "runtimeFiles": 16,
+  "runtimeLines": 4309,
+  "testFiles": 5,
+  "testLines": 2239,
+  "modules": 1,
+  "batches": 7,
+  "steps": 7,
+  "modelBackendForMigration": "Pi coding-agent / DeepSeek Flash",
+  "productBackend": "Pith coding-agent",
+  "language": "Go",
+  "cgo": false,
+  "retainedThirdPartyJavaScript": "TypeScript 5.9.3 compiler executed inside Goja",
+  "excluded": [
+    "Portsmith's npm development toolchain is replaced by Go tooling",
+    "Pi JavaScript extension host is replaced by Pith Go hooks; no automatic plugin translation",
+    "In-flight Pi sessions and TS executor journals are not binary-compatible; use a fresh native run"
+  ]
+}

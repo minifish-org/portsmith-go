@@ -1,0 +1,5 @@
+{
+  "repository": "https://github.com/badlogic/pi-mono",
+  "revision": "f07218c4d4bbc12bef056a7058c3dd49dfe41abe",
+  "path": "packages/ai/src/utils/event-stream.ts"
+}

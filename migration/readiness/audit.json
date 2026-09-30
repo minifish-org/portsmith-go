@@ -1,0 +1,49 @@
+{
+  "started": "2026-09-30T16:03:54.713Z",
+  "finished": "2026-09-30T16:04:00.929Z",
+  "preparedSnapshots": 7,
+  "requiredJudgeTests": 19,
+  "probes": {
+    "compiler": {
+      "typescript": "5.9.3",
+      "ast": true,
+      "tsconfigResolution": true,
+      "asyncOracleCases": 7,
+      "cgo": false
+    },
+    "pith": {
+      "backend": "Pith coding-agent",
+      "nativeWrite": true,
+      "customVerifier": true,
+      "turns": 3,
+      "durableSession": true,
+      "paidModelCalls": 0
+    }
+  },
+  "judgeCompile": "passed",
+  "negativeControl": "empty typed Go implementation",
+  "rejectedBy": [
+    "TestPortsmithJudgeTypeScriptAnalysis",
+    "TestPortsmithJudgeDraftPlanning",
+    "TestPortsmithJudgePithRepairAndResume",
+    "TestPortsmithJudgePithContinuationAndCancellation",
+    "TestPortsmithJudgeNativeProviderHTTP",
+    "TestPortsmithJudgeCLI",
+    "TestPortsmithJudgeStandaloneAndCrossBuild",
+    "TestPortsmithJudgeSourceCoverageAndPithDependency",
+    "TestPortsmithJudgeFilesAndProcess",
+    "TestPortsmithJudgeModelConfiguration",
+    "TestPortsmithJudgeIndependentVerification",
+    "TestPortsmithJudgeMissingAndForgedTests",
+    "TestPortsmithJudgeLiveEventStreamOracle",
+    "TestPortsmithJudgeAutomaticMigrationAndResume",
+    "TestPortsmithJudgeRepairBudgetAndFrozenPlan",
+    "TestPortsmithJudgeAcceptanceReceipt",
+    "TestPortsmithJudgeAdditiveBaseline",
+    "TestPortsmithJudgeTaskSnapshots",
+    "TestPortsmithJudgeFrozenSeedsAndJudges"
+  ],
+  "realVerifier": "behavior_failed",
+  "paidModelCalls": 0,
+  "caveat": "Preparation, dependency compatibility and judge rejection are verified. The Go product is not implemented yet; correct implementations and comprehensive parity remain to be demonstrated by the migration."
+}

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "source": "<fixture>",
+  "revision": "reviewed-revision",
+  "analysisSha256": "b03775066d34712158505b9bbbe6f7c57655438e8bb4681a5a35e727dcc0fc18",
+  "units": [
+    {
+      "id": "cycle",
+      "goal": "Port the public behavior of cycle; refine the scope and add acceptance scenarios first.",
+      "targetPackage": "cycle",
+      "files": [
+        "cycle/a.ts",
+        "cycle/b.ts"
+      ],
+      "references": [],
+      "dependsOn": [],
+      "acceptance": [],
+      "notes": []
+    },
+    {
+      "id": "src",
+      "goal": "Port the public behavior of src; refine the scope and add acceptance scenarios first.",
+      "targetPackage": "src",
+      "files": [
+        "src/index.ts",
+        "src/types.ts",
+        "src/value.ts"
+      ],
+      "references": [
+        "tests/value.test.ts"
+      ],
+      "dependsOn": [],
+      "acceptance": [],
+      "notes": [
+        "Manual resolution required: src/index.ts:4 ./absent.js",
+        "Manual resolution required: src/index.ts:6 name",
+        "External dependency needs a mapping decision: node:fs",
+        "External dependency needs a mapping decision: third-party",
+        "Manual resolution required: src/index.ts:9 fixture-workspace/missing",
+        "Manual resolution required: src/index.ts:10 @src/missing"
+      ]
+    },
+    {
+      "id": "legacy",
+      "goal": "Port the public behavior of legacy; refine the scope and add acceptance scenarios first.",
+      "targetPackage": "legacy",
+      "files": [
+        "legacy/require.cts"
+      ],
+      "references": [
+        "src/types.ts"
+      ],
+      "dependsOn": [
+        "src"
+      ],
+      "acceptance": [],
+      "notes": []
+    },
+    {
+      "id": "view",
+      "goal": "Port the public behavior of view; refine the scope and add acceptance scenarios first.",
+      "targetPackage": "view",
+      "files": [
+        "view/component.tsx"
+      ],
+      "references": [
+        "src/types.ts"
+      ],
+      "dependsOn": [
+        "src"
+      ],
+      "acceptance": [],
+      "notes": []
+    }
+  ],
+  "packageCycles": []
+}

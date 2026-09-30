@@ -1,0 +1,483 @@
+{
+  "version": 2,
+  "project": "..",
+  "runs": ".portsmith/runs",
+  "startPolicy": "all-prepared",
+  "bootstrap": [
+    "migration",
+    "go.mod",
+    "go.sum",
+    ".gitignore",
+    "README.md"
+  ],
+  "batches": {
+    "foundation": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/files.ts",
+            "src/process.ts",
+            "src/diagnostics.ts",
+            "src/model.ts",
+            "src/agent.ts",
+            "src/analyze.ts",
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/event-stream.ts",
+            "src/migrate.ts",
+            "src/modules.ts",
+            "src/oracle-worker.ts",
+            "src/plan.ts",
+            "src/state.ts",
+            "src/verify.ts",
+            "src/workspace.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "File integrity, exclusive task locks, child-process cancellation and model/environment configuration. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/foundation.md",
+          "judge": "judges/foundation",
+          "outputs": [
+            "internal/portsmith/files.go",
+            "internal/portsmith/process.go",
+            "internal/portsmith/process_unix.go",
+            "internal/portsmith/process_windows.go",
+            "internal/portsmith/diagnostics.go",
+            "internal/portsmith/model.go",
+            "internal/portsmith/foundation_test.go"
+          ],
+          "tests": [
+            "TestPortsmithJudgeFilesAndProcess",
+            "TestPortsmithJudgeModelConfiguration"
+          ],
+          "race": true
+        }
+      ]
+    },
+    "analysis": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/analyze.ts",
+            "src/plan.ts",
+            "src/agent.ts",
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/diagnostics.ts",
+            "src/event-stream.ts",
+            "src/files.ts",
+            "src/migrate.ts",
+            "src/model.ts",
+            "src/modules.ts",
+            "src/oracle-worker.ts",
+            "src/process.ts",
+            "src/state.ts",
+            "src/verify.ts",
+            "src/workspace.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "TypeScript AST/module-resolution analysis and reviewable v1 draft plans. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/analysis.md",
+          "judge": "judges/analysis",
+          "outputs": [
+            "internal/portsmith/analyze.go",
+            "internal/portsmith/plan.go",
+            "internal/portsmith/typescript.go",
+            "internal/portsmith/analysis_test.go"
+          ],
+          "tests": [
+            "TestPortsmithJudgeTypeScriptAnalysis",
+            "TestPortsmithJudgeDraftPlanning"
+          ],
+          "race": false,
+          "assets": [
+            {
+              "source": "assets/typescript.txt",
+              "target": "internal/portsmith/typescript.txt",
+              "sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675"
+            },
+            {
+              "source": "assets/typescript-LICENSE.txt",
+              "target": "internal/portsmith/typescript-LICENSE.txt",
+              "sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47"
+            },
+            {
+              "source": "assets/typescript-NOTICE.txt",
+              "target": "internal/portsmith/typescript-NOTICE.txt",
+              "sha256": "1af3c68039c57e539422da82a4faada506ce6d0ea6f90e0b699d02dbcdb7a90c"
+            },
+            {
+              "source": "assets/goja-LICENSE.txt",
+              "target": "internal/portsmith/goja-LICENSE.txt",
+              "sha256": "8a1266c1dd7d22027455bea83b92087f606c8d5fc701b269a8411f008ed49a99"
+            },
+            {
+              "source": "assets/pith-LICENSE.txt",
+              "target": "internal/portsmith/pith-LICENSE.txt",
+              "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+            }
+          ]
+        }
+      ]
+    },
+    "workspace": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/workspace.ts",
+            "src/agent.ts",
+            "src/analyze.ts",
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/diagnostics.ts",
+            "src/event-stream.ts",
+            "src/files.ts",
+            "src/migrate.ts",
+            "src/model.ts",
+            "src/modules.ts",
+            "src/oracle-worker.ts",
+            "src/plan.ts",
+            "src/process.ts",
+            "src/state.ts",
+            "src/verify.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "Immutable task snapshots, writable candidates and fingerprints. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/workspace.md",
+          "judge": "judges/workspace",
+          "outputs": [
+            "internal/portsmith/workspace.go",
+            "internal/portsmith/workspace_test.go"
+          ],
+          "tests": [
+            "TestPortsmithJudgeTaskSnapshots",
+            "TestPortsmithJudgeFrozenSeedsAndJudges"
+          ],
+          "race": false
+        }
+      ]
+    },
+    "verification": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/verify.ts",
+            "src/event-stream.ts",
+            "src/oracle-worker.ts",
+            "src/agent.ts",
+            "src/analyze.ts",
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/diagnostics.ts",
+            "src/files.ts",
+            "src/migrate.ts",
+            "src/model.ts",
+            "src/modules.ts",
+            "src/plan.ts",
+            "src/process.ts",
+            "src/state.ts",
+            "src/workspace.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "Isolated Go verification, live TS oracle and distinct native receipts. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/verification.md",
+          "judge": "judges/verification",
+          "outputs": [
+            "internal/portsmith/verify.go",
+            "internal/portsmith/event_stream.go",
+            "internal/portsmith/verification_test.go"
+          ],
+          "tests": [
+            "TestPortsmithJudgeIndependentVerification",
+            "TestPortsmithJudgeMissingAndForgedTests",
+            "TestPortsmithJudgeLiveEventStreamOracle"
+          ],
+          "race": false
+        }
+      ]
+    },
+    "backend": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/agent.ts",
+            "src/analyze.ts",
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/diagnostics.ts",
+            "src/event-stream.ts",
+            "src/files.ts",
+            "src/migrate.ts",
+            "src/model.ts",
+            "src/modules.ts",
+            "src/oracle-worker.ts",
+            "src/plan.ts",
+            "src/process.ts",
+            "src/state.ts",
+            "src/verify.ts",
+            "src/workspace.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "Pith coding-agent tool/repair loop, persistent sessions and model resilience. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/backend.md",
+          "judge": "judges/backend",
+          "outputs": [
+            "internal/portsmith/agent.go",
+            "internal/portsmith/agent_test.go"
+          ],
+          "tests": [
+            "TestPortsmithJudgePithRepairAndResume",
+            "TestPortsmithJudgePithContinuationAndCancellation",
+            "TestPortsmithJudgeNativeProviderHTTP"
+          ],
+          "race": true
+        }
+      ]
+    },
+    "workflow": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/state.ts",
+            "src/migrate.ts",
+            "src/modules.ts",
+            "src/agent.ts",
+            "src/analyze.ts",
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/diagnostics.ts",
+            "src/event-stream.ts",
+            "src/files.ts",
+            "src/model.ts",
+            "src/oracle-worker.ts",
+            "src/plan.ts",
+            "src/process.ts",
+            "src/verify.ts",
+            "src/workspace.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "v1/v2 execution, cumulative independent gates, repair, recovery, additive baselines and commits. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/workflow.md",
+          "judge": "judges/workflow",
+          "outputs": [
+            "internal/portsmith/state.go",
+            "internal/portsmith/migrate.go",
+            "internal/portsmith/modules.go",
+            "internal/portsmith/workflow_test.go"
+          ],
+          "tests": [
+            "TestPortsmithJudgeAutomaticMigrationAndResume",
+            "TestPortsmithJudgeRepairBudgetAndFrozenPlan",
+            "TestPortsmithJudgeAcceptanceReceipt",
+            "TestPortsmithJudgeAdditiveBaseline"
+          ],
+          "race": false
+        }
+      ]
+    },
+    "delivery": {
+      "status": "ready",
+      "steps": [
+        {
+          "id": "port",
+          "sources": [
+            "src/cli.ts",
+            "src/demo.ts",
+            "src/agent.ts",
+            "src/analyze.ts",
+            "src/diagnostics.ts",
+            "src/event-stream.ts",
+            "src/files.ts",
+            "src/migrate.ts",
+            "src/model.ts",
+            "src/modules.ts",
+            "src/oracle-worker.ts",
+            "src/plan.ts",
+            "src/process.ts",
+            "src/state.ts",
+            "src/verify.ts",
+            "src/workspace.ts",
+            "test/agent.test.ts",
+            "test/migrate.test.ts",
+            "test/model.test.ts",
+            "test/modules.test.ts",
+            "test/workflow.test.ts",
+            "dependency-reference/API.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/sdk.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/agent_session.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_registry.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_manager.go.txt",
+            "dependency-reference/references/pith/docs/sdk/README.md.txt",
+            "dependency-reference/references/pith/docs/sdk/compatibility.md.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/custom-tool/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/events/main.go.txt",
+            "dependency-reference/references/pith/examples/embedded-sdk/resume/main.go.txt",
+            "dependency-reference/references/pith/LICENSE.txt",
+            "dependency-reference/references/pith/packages/coding-agent/model_runtime.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resource_loader.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tools.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/tool_hooks.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/resilience_test.go.txt",
+            "dependency-reference/references/pith/packages/coding-agent/session_test.go.txt"
+          ],
+          "goal": "Complete CLI, standalone binary, source mappings and delivery documentation. Implement the complete source-owned behavior; run candidate tests and the frozen cumulative judge before finishing.",
+          "contract": "contracts/delivery.md",
+          "judge": "judges/delivery",
+          "outputs": [
+            "internal/portsmith/cli.go",
+            "internal/portsmith/demo.go",
+            "internal/portsmith/cli_test.go",
+            "cmd/portsmith/main.go",
+            "docs/USAGE.md",
+            "docs/COMPATIBILITY.md",
+            "docs/THIRD_PARTY.md",
+            "docs/source-map.json"
+          ],
+          "tests": [
+            "TestPortsmithJudgeCLI",
+            "TestPortsmithJudgeStandaloneAndCrossBuild",
+            "TestPortsmithJudgeSourceCoverageAndPithDependency"
+          ],
+          "race": false
+        }
+      ]
+    }
+  }
+}

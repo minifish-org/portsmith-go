@@ -1,0 +1,74 @@
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	aitypes "github.com/minifish-org/pith/packages/ai/types"
+	codingagent "github.com/minifish-org/pith/packages/coding-agent"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+func main() {
+	d, e := os.MkdirTemp("", "portsmith-pith-probe-")
+	check(e)
+	defer os.RemoveAll(d)
+	manager, e := codingagent.OpenSession(filepath.Join(d, "session.jsonl"))
+	check(e)
+	tools, e := codingagent.NewToolRegistry(d, []codingagent.ToolDefinition{{Name: "verify_candidate", Description: "offline probe", Parameters: json.RawMessage(`{"type":"object"}`), Execute: func(context.Context, json.RawMessage) (codingagent.ToolResult, error) {
+		b, e := os.ReadFile(filepath.Join(d, "value.go"))
+		if e != nil {
+			return codingagent.ToolResult{}, e
+		}
+		return codingagent.ToolResult{Content: []aitypes.ContentBlock{aitypes.TextBlock("verified: " + string(b))}}, nil
+	}}}, nil, nil, codingagent.ToolHooks{})
+	check(e)
+	model := &aitypes.Model{Id: "probe", Name: "probe", Api: aitypes.ApiOpenAICompletions, Provider: aitypes.ProviderOpenAI, BaseUrl: "http://127.0.0.1:1", ContextWindow: 1000000, MaxTokens: 384000, Input: []aitypes.ModelInputModality{aitypes.ModelInputText}}
+	calls := 0
+	stream := func(m *aitypes.Model, c *aitypes.TranscriptContext, o *aitypes.SimpleStreamOptions) *aitypes.AssistantMessageEventStream {
+		calls++
+		s := aitypes.NewAssistantMessageEventStream()
+		message := aitypes.NewAssistantMessage(m.Api, m.Provider, m.Id, 1)
+		message.StopReason = aitypes.StopReasonToolUse
+		name, args := "write", `{"path":"value.go","content":"package value\n"}`
+		if calls == 2 {
+			name, args = "verify_candidate", `{}`
+		}
+		if calls < 3 {
+			tool := aitypes.NewToolCall(fmt.Sprint(calls), name, json.RawMessage(args))
+			message.Content = []aitypes.ContentBlock{{Type: aitypes.ContentTypeToolCall, ToolCall: &tool}}
+		} else {
+			b, _ := json.Marshal(c)
+			if !strings.Contains(string(b), "verified:") {
+				panic("tool result missing")
+			}
+			message.StopReason = aitypes.StopReasonStop
+			message.Content = []aitypes.ContentBlock{aitypes.TextBlock("done")}
+		}
+		s.Push(aitypes.NewDoneEvent(message.StopReason, message))
+		return s
+	}
+	session, e := codingagent.CreateAgentSession(codingagent.SessionOptions{Cwd: d, Manager: manager, Tools: tools, Model: codingagent.ModelOptions{Model: model, StreamFn: stream}})
+	check(e)
+	result, e := session.Prompt(context.Background(), "create and verify")
+	check(e)
+	if result.Turns != 3 || calls != 3 {
+		panic("tool loop incomplete")
+	}
+	check(session.Close())
+	check(manager.Close())
+	reopened, e := codingagent.OpenSession(filepath.Join(d, "session.jsonl"))
+	check(e)
+	defer reopened.Close()
+	if len(reopened.Entries()) < 4 {
+		panic("conversation not durable")
+	}
+	fmt.Println(`{"backend":"Pith coding-agent","nativeWrite":true,"customVerifier":true,"turns":3,"durableSession":true,"paidModelCalls":0}`)
+}
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
