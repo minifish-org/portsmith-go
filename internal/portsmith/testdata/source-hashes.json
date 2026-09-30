@@ -1,0 +1,18 @@
+{
+  "src/agent.ts": "2833f1d1d5673af4d36333c11931183b01938870a5d5dc011ac4780e3613aae4",
+  "src/analyze.ts": "19fc809d393e9237364a8693c5337cb46ad1f7145898ad0a7f52c51143d31355",
+  "src/cli.ts": "83ce5b822a8d0562b4d6b52fc13d977b061af9bc9be01c59d20b810b3a72986c",
+  "src/demo.ts": "0bd4a061010b9c6dc52d6127ebf47b694e38c98bf3a0523913301020bdb4bac3",
+  "src/diagnostics.ts": "0d36160286c41c782a3f4f4c15684852677b793ffade79f470ced34e87e57275",
+  "src/event-stream.ts": "c26ace00d0ad74cf74a84eeba42e71caab65c0fbfbf67f7a471dc4383fc56d8a",
+  "src/files.ts": "9d0919826424a2d82e6d5f884c0163947f28381419b739b77d7e6bd321aba90e",
+  "src/migrate.ts": "47078609dde343b0bfec7221369ccee3a517546c7ad96b47ffcee34a990f3f80",
+  "src/model.ts": "20deeacaef9989ee975c81abd126d343959261a3c606b2fae3e80b5ec51bf64e",
+  "src/modules.ts": "8dc955c4f86caa5efcd8e08ae0e51d29a3c518d44a19e4b5b846bfd43623f74d",
+  "src/oracle-worker.ts": "d382a9288d87a739ce6c74e740da457c18c79d16f90cfb1df83177338d127de4",
+  "src/plan.ts": "c8aaad7187c586a7ff91b86eba22265f9a419d150eafd838a48d48fd63d7fd1d",
+  "src/process.ts": "788f4b059607a1c336aa432e1e2b6f5be6bafa7d3a2129d167959be3ba53322e",
+  "src/state.ts": "eaa9c175f7a25088e3d0eee32890f9da520cf2c57f40e74120a6d9db8b7d740f",
+  "src/verify.ts": "8fbb8b587ff99714e075d2c340a69fb287fc0d0cdff767232c53dedbd3ec6ee6",
+  "src/workspace.ts": "ec1b68c32f0d690645c207553b318880d94e82bc832c0aa582942f5fcfa8f1ba"
+}

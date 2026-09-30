@@ -1,0 +1,11 @@
+import { value } from "@src/value";
+export { value as answer } from "./value.js";
+export type { Shape } from "./types.js";
+export type Missing = import("./absent.js").Missing;
+const name = "dynamic";
+import(name);
+require("node:fs");
+import("third-party");
+import("fixture-workspace/missing");
+import("@src/missing");
+export const result = value;
