@@ -55,13 +55,24 @@ claimed.
   (12000 characters) that upstream also printed, and it still labels the full
   report on disk.
 
+## Native incremental additions
+
+The native `sync` command adds Git revision comparison, reviewed TS-to-Go
+ownership, reverse import impact analysis, frozen old/new source and v2 drafts.
+The optional v2 `updates` manifest authorizes existing-file replacements by
+original Git commit and SHA-256, with transactional recovery. Accepted sync
+execution advances the upstream baseline through a separate recoverable commit.
+These are new Go capabilities, not claims of parity with the original TS CLI.
+See [incremental migration](INCREMENTAL.md).
+
 ## Explicit non-claims
 
 - This product does not claim exhaustive equivalence with the TypeScript
   source, nor that a passing built-in oracle proves full parity.
 - A generated file or a model's confidence is not evidence of correctness.
-- Revision labels are user supplied; selected files are checked by SHA-256, not
-  authenticated as a Git identity.
+- Legacy plan revision labels are user supplied. Native `sync` requires exact
+  Git commit identities and checks exported bytes against Git blobs; frozen
+  execution inputs remain checked by SHA-256.
 - Local model-controlled shell execution is not an OS security sandbox.
 - A standalone Portsmith binary does not bundle arbitrary target compilers.
 

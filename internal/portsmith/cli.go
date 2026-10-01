@@ -28,6 +28,8 @@ import (
 // flag spelling in sync with parseCLIArgs.
 const helpText = `Portsmith — an inspectable, resumable TypeScript-to-Go migration workbench
 
+portsmith sync --init [--project <target>] [--config <sync.json>]
+portsmith sync --upstream <commit> [--project <target>] [--source <upstream-git>] [--out <plan-directory>] [--check | --commit] [--env-file <file>]
 portsmith analyze --source <source> --out <analysis.json>
 portsmith migrate --plan <plan-directory> --check
 portsmith migrate --plan <plan-directory> --commit [--env-file <file>] [--max-attempts 0] [--max-units 1]
@@ -45,11 +47,12 @@ portsmith next --plan <plan-directory> --runs <runs-directory>
 portsmith accept --task <task-directory> --out <new-export-directory>
 
 prepare options: --rules <rules.md> --go-mod <go.mod> --go-sum <go.sum> --judge <judge-directory>
-Uses Pi Coding Agent's native tools, persistent sessions, skills and extensions. Local execution is not an OS sandbox.
+Uses Pith Coding Agent's native tools, persistent sessions and Go hooks. Local execution is not an OS sandbox.
 Default: unlimited model turns, repair attempts and runtime. Positive --max-turns / --max-attempts / --timeout values set budgets; 0 disables them. Ctrl-C preserves progress.
 Mature Go dependencies are allowed. Manifests are frozen; --allow-download permits verifier dependency downloads.
 analyze/plan do not call models. Review and complete acceptance contracts before execution. No automatic push or publication.
-Revision labels are user-supplied; selected files are checked by SHA-256, not authenticated as a Git identity.
+Legacy revision labels are user-supplied; sync requires exact Git hashes and checked upstream blobs.
+Sync drafts need reviewed contracts, independent judges and explicit new mappings before model execution.
 v2 requires all batches prepared before starting. needs-preparation reports gaps before model calls. --max-units counts complete modules.
 `
 
@@ -76,6 +79,8 @@ type cliOptions struct {
 	maxUnits                                                string
 	hasMaxUnits                                             bool
 	allowDownload, check, commit, help                      bool
+	upstream, project, config                               string
+	init                                                    bool
 }
 
 // parseCLIArgs approximates node:util parseArgs in strict mode: long flags
@@ -118,6 +123,16 @@ func parseCLIArgs(args []string) (*cliOptions, error) {
 
 		var err error
 		switch name {
+		case "upstream":
+			options.upstream, err = value()
+		case "project":
+			options.project, err = value()
+		case "config":
+			options.config, err = value()
+		case "init":
+			if err = boolean(); err == nil {
+				options.init = true
+			}
 		case "source":
 			options.source, err = value()
 		case "out":
@@ -233,6 +248,40 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 // dispatchCLI routes one parsed command. Errors become exit status 1 in Main.
 func dispatchCLI(ctx context.Context, command string, options *cliOptions, stdout io.Writer) (int, error) {
 	switch command {
+	case "sync":
+		r, err := PrepareSync(ctx, SyncOptions{Project: options.project, Config: options.config, Source: options.source, Upstream: options.upstream, Out: options.out, Init: options.init})
+		if err != nil {
+			return 1, err
+		}
+		b, err := json.MarshalIndent(r, "", "  ")
+		if err != nil {
+			return 1, err
+		}
+		fmt.Fprintln(stdout, string(b))
+		if (options.commit || options.check) && r.Plan != "" {
+			options.plan = r.Plan
+			inspected, err := inspectModules(r.Plan)
+			if err != nil {
+				return 1, err
+			}
+			if _, err = reviewedSyncMappings(inspected, r.Plan); err != nil {
+				return 1, err
+			}
+			code, err := cliMigrate(ctx, options, stdout)
+			if err != nil || code != 0 {
+				return code, err
+			}
+			if options.commit && !options.check {
+				if err := advanceSync(ctx, options, r); err != nil {
+					return 1, err
+				}
+			}
+			return 0, nil
+		}
+		if r.Status == "needs-preparation" {
+			return 2, nil
+		}
+		return 0, nil
 	case "analyze":
 		return cliAnalyze(ctx, options, stdout)
 	case "plan":

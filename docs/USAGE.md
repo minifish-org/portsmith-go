@@ -26,6 +26,8 @@ integrate migrated code; they are not bundled.
 | `judge-check`, `verify` | yes (Go toolchain) | no | no |
 | `run`, `migrate --commit` | yes | yes | yes |
 | `migrate --check` | no | yes | no |
+| `sync --init`, `sync`, `sync --check` | no | yes | no |
+| `sync --commit` | yes | yes | yes |
 
 `analyze` and `help` run with no Node, Go or Git on `PATH`; they are pure Go
 plus the embedded TypeScript compiler.
@@ -151,18 +153,23 @@ The model connection is created lazily on the first generation, reading
 
 ### Incremental migration
 
-A version-2 workflow can freeze existing project files using `baseline` and
-record the new migration under a separate `journal`. This supports adding new
-capabilities to an existing Go project. The current integration transaction
-refuses to overwrite existing product files or receipts, so updating an
-already-ported upstream implementation requires additional update-transaction
-support. Changing the journal path alone does not enable replacements.
+```sh
+# Import the existing Pith migration and source maps once; review and commit it.
+portsmith sync --init --project ../pith
 
-Prepare a fresh reviewed plan for each increment: pinned upstream source,
-source-to-Go mappings, output ownership, frozen baseline, contracts and
-independent judges. Completed TypeScript executor journals cannot be reused by
-the native executor. The tool does not automatically discover upstream releases
-or turn a Git diff into an accepted migration plan.
+# A full upstream commit creates a deterministic draft, without model calls.
+portsmith sync --project ../pith --upstream <full-new-Pi-hash>
+
+# After contracts, ownership and independent judges have been reviewed:
+portsmith sync --project ../pith --upstream <full-new-Pi-hash> --check
+portsmith sync --project ../pith --upstream <full-new-Pi-hash> --commit \
+  --env-file ../omni-pi/.env
+```
+
+The execution command runs all reviewed steps with Pith, verifies and repairs
+candidates, commits accepted modules and advances the sync baseline only after
+complete acceptance. Rerun it to resume. No manual task-by-task loop is needed.
+It never pushes. See [the complete incremental guide](INCREMENTAL.md).
 
 ### help
 

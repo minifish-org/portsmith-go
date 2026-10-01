@@ -4,7 +4,7 @@ A Go port of [Portsmith](https://github.com/minifish-org/portsmith), using [Pith
 
 **Current state: all seven migration steps completed and accepted.** The implementation covers all 16 runtime TypeScript files. Start with [product usage](docs/USAGE.md), [compatibility](docs/COMPATIBILITY.md), and [the accepted migration receipt](migration/results/portsmith.json).
 
-Build the product with `CGO_ENABLED=0 go build -mod=readonly -o bin/portsmith ./cmd/portsmith`, then run `./bin/portsmith --help`. Existing reviewed v1/v2 plans are supported with fresh native execution records. Additive workflows can freeze an existing project as a baseline and generate new files; integration of replacements for existing files still needs an update transaction. See [source coverage](docs/source-map.json).
+Build the product with `CGO_ENABLED=0 go build -mod=readonly -o bin/portsmith ./cmd/portsmith`, then run `./bin/portsmith --help`. Existing reviewed v1/v2 plans are supported with fresh native execution records. Incremental workflows support frozen read-only baselines and explicitly authorized replacements. The native `sync` command compares upstream Git revisions, follows reverse dependencies, and creates a fresh migration draft. See [incremental sync](docs/INCREMENTAL.md). See [source coverage](docs/source-map.json).
 
 ## Reproduce the original migration
 

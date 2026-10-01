@@ -89,6 +89,7 @@ type moduleWorkflow struct {
 	StartPolicy string                 `json:"startPolicy,omitempty"`
 	Journal     string                 `json:"journal,omitempty"`
 	Baseline    *baselineConfig        `json:"baseline,omitempty"`
+	Updates     *baselineConfig        `json:"updates,omitempty"`
 	Batches     map[string]batchConfig `json:"batches"`
 }
 
@@ -129,6 +130,7 @@ type modulePending struct {
 	Task        string        `json:"task"`
 	Fingerprint string        `json:"fingerprint"`
 	Staging     string        `json:"staging"`
+	Before      []NamedDigest `json:"before,omitempty"`
 }
 
 // moduleState is the version-2 migration journal.
@@ -153,6 +155,7 @@ type moduleInspection struct {
 	Items    []moduleItem
 	Identity string
 	Baseline []File
+	Updates  []File
 }
 
 // blockedBatch is one unavailable batch. The module member is supplied for the
@@ -628,7 +631,7 @@ func inspectModules(planInput string) (*moduleInspection, error) {
 				return nil, err
 			}
 			invalid := !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(file.SHA256) || seen[file.Name] ||
-				!regexp.MustCompile(`^(packages|internal|cmd)/`).MatchString(file.Name)
+				!regexp.MustCompile(`^(packages|internal|cmd|docs|examples)/`).MatchString(file.Name)
 			for _, part := range strings.Split(file.Name, "/") {
 				if strings.HasPrefix(part, ".") {
 					invalid = true
@@ -666,6 +669,19 @@ func inspectModules(planInput string) (*moduleInspection, error) {
 			baseline = append(baseline, File{Name: file.Name, Data: data, SHA256: Hash(data)})
 		}
 	}
+	updateOwners := map[string]string{}
+	for _, batch := range plan.Batches {
+		for _, name := range batch.Outputs {
+			if owner := updateOwners[name]; owner != "" && owner != batch.Module {
+				return nil, fmt.Errorf("conflicting update ownership: %s", name)
+			}
+			updateOwners[name] = batch.Module
+		}
+	}
+	updates, err := inspectUpdates(project, workflow, updateOwners, judgeOwners, baseline)
+	if err != nil {
+		return nil, err
+	}
 	names := []string{}
 	for _, item := range items {
 		names = append(names, item.Spec.Tests...)
@@ -696,6 +712,7 @@ func inspectModules(planInput string) (*moduleInspection, error) {
 		Runs     string          `json:"runs"`
 		Journal  string          `json:"journal,omitempty"`
 		Baseline *baselineConfig `json:"baseline,omitempty"`
+		Updates  *baselineConfig `json:"updates,omitempty"`
 		Rules    string          `json:"rules"`
 		License  string          `json:"license"`
 	}{
@@ -706,6 +723,7 @@ func inspectModules(planInput string) (*moduleInspection, error) {
 		Runs:     workflow.Runs,
 		Journal:  workflow.Journal,
 		Baseline: workflow.Baseline,
+		Updates:  workflow.Updates,
 		Rules:    Hash(rules),
 		License:  Hash(license),
 	}
@@ -727,6 +745,7 @@ func inspectModules(planInput string) (*moduleInspection, error) {
 		Items:    items,
 		Identity: Hash(identityJSON),
 		Baseline: baseline,
+		Updates:  updates,
 	}, nil
 }
 
@@ -833,6 +852,9 @@ func nextWork(inspected *moduleInspection, state *moduleState) nextWorkResult {
 func validDone(ctx context.Context, inspected *moduleInspection, state *moduleState) error {
 	if state.Version != 2 || state.Identity != inspected.Identity {
 		return errors.New("Source, module structure or rules changed; replan instead of reusing progress")
+	}
+	if err := validateUpdateWorkspace(inspected, state); err != nil {
+		return err
 	}
 	verified := map[string]bool{}
 	for _, step := range state.Steps {
@@ -1149,7 +1171,7 @@ func (m *v2Runner) unchanged() error {
 		hashOrEmpty(now.Sum) != hashOrEmpty(m.inspected.Sum) {
 		return errors.New("Migration materials changed during execution; stopped. Review materials before rerunning")
 	}
-	return nil
+	return validateUpdateWorkspace(m.inspected, &m.state)
 }
 
 func (m *v2Runner) run() (json.RawMessage, error) {
@@ -1314,7 +1336,17 @@ func (m *v2Runner) runStep(item *moduleItem, module *moduleDef) error {
 			initial = append(initial, File{Name: file.Name, Data: data, SHA256: Hash(data)})
 		}
 	}
+	for _, file := range m.inspected.Updates {
+		if containsString(ownNames, file.Name) && !frozenNames[file.Name] && !fileNamed(initial, file.Name) {
+			initial = append(initial, file)
+		}
+	}
 	seed := append([]File{}, m.inspected.Baseline...)
+	for _, file := range m.inspected.Updates {
+		if !containsString(ownNames, file.Name) && !committedFile(m.state, file.Name) {
+			seed = append(seed, file)
+		}
+	}
 	seed = append(seed, frozenAssets...)
 	for _, committed := range m.state.Modules {
 		for _, file := range committed.Files {
@@ -1645,15 +1677,33 @@ func (m *v2Runner) commitModule(module *moduleDef) error {
 	}
 	receiptData := append(receipt, '\n')
 	files = append(files, File{Name: "migration/results/" + module.ID + ".json", Data: receiptData, SHA256: Hash(receiptData)})
+	before := []NamedDigest{}
+	changed := []File{}
 	for _, file := range files {
 		exists, err := fileExists(filepath.Join(m.inspected.Project, filepath.FromSlash(file.Name)))
 		if err != nil {
 			return err
 		}
 		if exists {
-			return fmt.Errorf("Integration refuses to overwrite an existing file: %s", file.Name)
+			original := findFile(m.inspected.Updates, file.Name)
+			if original == nil {
+				return fmt.Errorf("Integration refuses to overwrite an existing file: %s", file.Name)
+			}
+			data, err := readCheckedBytes(m.inspected.Project, file.Name)
+			if err != nil {
+				return err
+			}
+			if Hash(data) != original.SHA256 {
+				return fmt.Errorf("Update target changed: %s", file.Name)
+			}
+			if Hash(data) == file.SHA256 {
+				continue
+			}
+			before = append(before, NamedDigest{Name: file.Name, SHA256: original.SHA256})
 		}
+		changed = append(changed, file)
 	}
+	files = changed
 	stagingRel := path.Join(m.inspected.Workflow.Runs, module.ID+"-integration")
 	staging := filepath.Join(m.inspected.Project, filepath.FromSlash(stagingRel))
 	if exists, err := fileExists(staging); err != nil {
@@ -1678,6 +1728,7 @@ func (m *v2Runner) commitModule(module *moduleDef) error {
 		Task:        last.Task,
 		Fingerprint: report.Fingerprint,
 		Staging:     stagingRel,
+		Before:      before,
 	}
 	if err := m.save(); err != nil {
 		return err
@@ -1766,7 +1817,14 @@ func (m *v2Runner) recover() error {
 					return err
 				}
 				if Hash(data) != file.SHA256 {
-					return fmt.Errorf("Recovery refuses to overwrite user changes: %s", file.Name)
+					old := digestNamed(pending.Before, file.Name)
+					original := findFile(m.inspected.Updates, file.Name)
+					if old == "" || original == nil || old != original.SHA256 || Hash(data) != old {
+						return fmt.Errorf("Recovery refuses to overwrite user changes: %s", file.Name)
+					}
+					if err := replaceProjectFile(m.inspected.Project, file); err != nil {
+						return err
+					}
 				}
 			} else if err := copyFiles(m.inspected.Project, []File{file}); err != nil {
 				return err
