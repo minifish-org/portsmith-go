@@ -151,6 +151,18 @@ func prepareReviewedSync(t *testing.T, r SyncReport) {
 }
 func TestSyncReviewedMigrationAdvancesOnlyAfterAcceptance(t *testing.T) {
 	project, _, o, before := syncFixture(t)
+	cfg, err := readJSON[SyncConfig](project, "migration/sync.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// An imported reference with explicit accepted ownership is removed from
+	// the reference-only watch list after the metadata transaction commits.
+	cfg.References = []string{"src/value.ts"}
+	if err = AtomicJSON(filepath.Join(project, "migration/sync.json"), cfg); err != nil {
+		t.Fatal(err)
+	}
+	wfGit(t, project, "add", "migration/sync.json")
+	wfGit(t, project, "commit", "-qm", "reference watch baseline")
 	r, e := PrepareSync(context.Background(), o)
 	if e != nil {
 		t.Fatal(e)
@@ -182,6 +194,9 @@ func TestSyncReviewedMigrationAdvancesOnlyAfterAcceptance(t *testing.T) {
 	again, e := PrepareSync(context.Background(), o)
 	if e != nil || again.Status != "no_changes" || wfGit(t, project, "rev-parse", "HEAD") != head {
 		t.Fatal("sync not idempotent", e)
+	}
+	if len(c.References) != 0 {
+		t.Fatal("accepted implementation ownership remained reference-only")
 	}
 	if len(c.Mappings[2].GoFiles) != 2 {
 		t.Fatal("reviewed ownership not advanced")
@@ -272,7 +287,7 @@ func TestInitSyncImportsReviewedReferencesAndFineMappings(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if len(c.Mappings) != 2 || len(c.Mappings[0].GoFiles) != 1 || len(c.Mappings[1].GoFiles) != 2 {
+	if len(c.Mappings) != 1 || len(c.Mappings[0].GoFiles) != 1 || len(c.References) != 1 || c.References[0] != "packages/coding-agent/src/utils/abort.ts" {
 		t.Fatalf("wrong imported ownership: %+v", c)
 	}
 	if e := InitSync(project, config); e == nil {
@@ -391,5 +406,45 @@ func TestSyncRepairsOnlyVerifiedLegacyArchiveBytes(t *testing.T) {
 				t.Fatal("repair was not idempotent", e)
 			}
 		})
+	}
+}
+
+func TestSyncReferenceChangesDoNotClaimImplementationOwnership(t *testing.T) {
+	project, repo, o, before := syncFixture(t)
+	wfGit(t, repo, "checkout", "-q", before)
+	testPut(t, repo, "test/context.test.ts", "export const expected = 1;\n")
+	wfGit(t, repo, "add", ".")
+	wfGit(t, repo, "commit", "-qm", "reference baseline")
+	c, err := readJSON[SyncConfig](project, "migration/sync.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	c.Revision = wfGit(t, repo, "rev-parse", "HEAD")
+	c.References = []string{"test/context.test.ts"}
+	if err := AtomicJSON(filepath.Join(project, "migration/sync.json"), c); err != nil {
+		t.Fatal(err)
+	}
+	wfGit(t, project, "add", "migration/sync.json")
+	wfGit(t, project, "commit", "-qm", "watch reference")
+	testPut(t, repo, "test/context.test.ts", "export const expected = 2;\n")
+	wfGit(t, repo, "add", ".")
+	wfGit(t, repo, "commit", "-qm", "reference change")
+	o.Upstream = wfGit(t, repo, "rev-parse", "HEAD")
+	report, err := PrepareSync(context.Background(), o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(report.Changes) != 1 || len(report.Changes[0].GoFiles) != 0 || len(report.Unmapped) != 0 {
+		t.Fatalf("reference claimed implementation ownership: %+v", report)
+	}
+	if len(report.Changes[0].Reasons) == 0 || !strings.Contains(report.Changes[0].Reasons[0], "reference context") {
+		t.Fatal("missing reference review instruction")
+	}
+	workflow, err := readJSON[moduleWorkflow](report.Plan, "workflow.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if workflow.Updates != nil && len(workflow.Updates.Files) != 0 {
+		t.Fatal("reference unlocked Go outputs")
 	}
 }

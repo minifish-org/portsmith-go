@@ -29,6 +29,7 @@ type SyncConfig struct {
 	Revision   string        `json:"revision"`
 	Roots      []string      `json:"roots"`
 	Mappings   []SyncMapping `json:"mappings"`
+	References []string      `json:"references,omitempty"`
 }
 type SyncOptions struct {
 	Project, Config, Source, Upstream, Out string
@@ -146,6 +147,7 @@ func InitSync(project, config string) error {
 	}
 	owned := map[string]map[string]bool{}
 	roots := map[string]bool{}
+	primary := map[string]bool{}
 	for _, name := range []string{"migration/plan.json", "migration/sdk/plan.json"} {
 		b, e := os.ReadFile(filepath.Join(project, name))
 		if os.IsNotExist(e) {
@@ -165,6 +167,9 @@ func InitSync(project, config string) error {
 			for _, source := range append(append([]string{}, batch.Sources...), batch.References...) {
 				if !sourceFilePattern.MatchString(source) {
 					continue
+				}
+				if containsString(batch.Sources, source) {
+					primary[source] = true
 				}
 				if owned[source] == nil {
 					owned[source] = map[string]bool{}
@@ -245,6 +250,10 @@ func InitSync(project, config string) error {
 	}
 	sort.Strings(c.Roots)
 	for s, targets := range owned {
+		if !primary[s] && fine[s] == nil {
+			c.References = append(c.References, s)
+			continue
+		}
 		if fine[s] != nil {
 			targets = fine[s]
 		}
@@ -262,6 +271,7 @@ func InitSync(project, config string) error {
 		sort.Strings(files)
 		c.Mappings = append(c.Mappings, SyncMapping{Source: s, GoFiles: files})
 	}
+	sort.Strings(c.References)
 	sort.Slice(c.Mappings, func(i, j int) bool { return c.Mappings[i].Source < c.Mappings[j].Source })
 	if len(c.Mappings) == 0 {
 		return fmt.Errorf("no reviewed migration source mappings found")
@@ -637,7 +647,17 @@ func PrepareSync(ctx context.Context, o SyncOptions) (SyncReport, error) {
 	for _, n := range afterNames {
 		all[n] = true
 	}
+	referenceOnly := map[string]bool{}
+	for _, n := range c.References {
+		if _, e = RelativeName(n); e != nil {
+			return SyncReport{}, e
+		}
+		referenceOnly[n] = true
+	}
 	scoped := func(n string) bool {
+		if referenceOnly[n] {
+			return true
+		}
 		if _, ok := mappings[n]; ok {
 			return true
 		}
@@ -680,7 +700,10 @@ func PrepareSync(ctx context.Context, o SyncOptions) (SyncReport, error) {
 		} else {
 			change.Kind = "deleted"
 		}
-		if len(change.GoFiles) == 0 {
+		if len(change.GoFiles) == 0 && referenceOnly[n] {
+			change.Reasons = append(change.Reasons, "Reviewed reference context, not implementation ownership; inspect its relevance before assigning outputs.")
+		}
+		if len(change.GoFiles) == 0 && !referenceOnly[n] {
 			report.Unmapped = append(report.Unmapped, n)
 			change.Reasons = append(change.Reasons, "Source has no reviewed Go mapping; assign ownership before execution.")
 		}
@@ -1046,6 +1069,13 @@ func advanceSync(ctx context.Context, o *cliOptions, r SyncReport) error {
 				c.Mappings = append(c.Mappings, m)
 			}
 		}
+		remainingReferences := make([]string, 0, len(c.References))
+		for _, source := range c.References {
+			if _, mapped := owned[source]; !mapped {
+				remainingReferences = append(remainingReferences, source)
+			}
+		}
+		c.References = remainingReferences
 		sort.Slice(c.Mappings, func(a, b int) bool { return c.Mappings[a].Source < c.Mappings[b].Source })
 		c.Revision = r.After
 		encoded, e := json.MarshalIndent(c, "", "  ")

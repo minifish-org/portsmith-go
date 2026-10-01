@@ -16,8 +16,10 @@ CGO_ENABLED=0 go build -mod=readonly -o bin/portsmith ./cmd/portsmith
 ```
 
 Initialization imports `migration/upstream.json`, the original and SDK module
-plans (including their reviewed TS references), and `packages/**/source_map*.json`. Fine source maps take precedence;
-otherwise a TS source maps conservatively to its batch's Go outputs. Review
+plans and `packages/**/source_map*.json`. Fine source maps take precedence;
+otherwise an implementation source maps conservatively to its batch's Go outputs.
+Reference-only inputs without fine ownership are recorded separately in
+`references`: their changes require review but never unlock unrelated Go files. Review
 `../pith/migration/sync.json` and commit that file before preparing an increment.
 Do not run initialization twice. Other migrated projects can provide the same
 version-1 config directly:
@@ -28,6 +30,7 @@ version-1 config directly:
   "repository": "https://github.com/owner/upstream",
   "revision": "0123456789abcdef0123456789abcdef01234567",
   "roots": ["packages/ai/src", "packages/agent/src"],
+  "references": ["packages/ai/test/provider.test.ts"],
   "mappings": [
     {"source": "packages/ai/src/types.ts", "goFiles": ["packages/ai/types/types.go"]}
   ]
