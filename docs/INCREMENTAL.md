@@ -59,7 +59,10 @@ stage. The command compares added/modified/deleted files within the reviewed
 roots, hashes their actual Git blobs, records unmapped changes, and follows
 reverse TS import dependencies using both old and new source trees. A JSON
 configuration change conservatively includes all mapped source. Upstream
-archives are checked against Git blob identities before analysis.
+snapshots are exported directly from Git blobs and checked before analysis.
+Archive attributes cannot rewrite their bytes or omit tracked files. Older
+archive caches are repaired only when their bytes exactly match Git's archive
+representation; other content changes still fail validation.
 
 The default draft is `../pith/migration/sync/pi-<12-character-new-hash>/`:
 

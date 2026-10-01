@@ -2,6 +2,7 @@ package portsmith
 
 import (
 	"archive/tar"
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/sha1"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -117,7 +119,12 @@ func syncSnapshot(ctx context.Context, project, repo, revision string) (string, 
 		return "", e
 	}
 	if e := validateSnapshot(ctx, repo, revision, p); e != nil {
-		return "", e
+		if repairErr := repairArchiveSnapshot(ctx, repo, revision, p); repairErr != nil {
+			return "", repairErr
+		}
+		if e = validateSnapshot(ctx, repo, revision, p); e != nil {
+			return "", e
+		}
 	}
 	return p, nil
 }
@@ -300,79 +307,203 @@ func syncRepository(ctx context.Context, project string, c SyncConfig, source st
 	return mirror, nil
 }
 
-// Export only regular Git archive entries, never links, into a fresh cache.
+// Export the exact regular Git blobs, bypassing archive attributes such as
+// eol, export-subst and export-ignore. One batch process handles the entire tree.
 func exportRevision(ctx context.Context, repo, revision, destination string) error {
+	tree, e := gitRun(ctx, repo, "ls-tree", "-rz", revision)
+	if e != nil {
+		return e
+	}
 	temp := destination + ".preparing"
-	if _, e := os.Lstat(temp); !os.IsNotExist(e) {
+	if _, e = os.Lstat(temp); !os.IsNotExist(e) {
 		return fmt.Errorf("interrupted upstream snapshot exists: %s", temp)
 	}
-	if e := os.MkdirAll(temp, 0755); e != nil {
+	if e = os.MkdirAll(temp, 0755); e != nil {
 		return e
 	}
 	defer os.RemoveAll(temp)
-	c := exec.CommandContext(ctx, "git", "archive", "--format=tar", revision)
+	c := exec.CommandContext(ctx, "git", "cat-file", "--batch")
 	c.Dir = repo
 	c.Env = envList(CleanEnv(false, false))
 	var stderr bytes.Buffer
 	c.Stderr = &stderr
-	pipe, e := c.StdoutPipe()
+	input, e := c.StdinPipe()
+	if e != nil {
+		return e
+	}
+	output, e := c.StdoutPipe()
 	if e != nil {
 		return e
 	}
 	if e = c.Start(); e != nil {
 		return e
 	}
-	success := false
+	waited := false
 	defer func() {
-		if !success {
+		if !waited {
 			_ = c.Process.Kill()
 			_ = c.Wait()
 		}
 	}()
-	tr := tar.NewReader(pipe)
-	for {
-		h, e := tr.Next()
-		if e == io.EOF {
-			break
+	reader := bufio.NewReader(output)
+	for _, entry := range strings.Split(tree, "\x00") {
+		if entry == "" {
+			continue
 		}
+		parts := strings.SplitN(entry, "\t", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid Git tree entry")
+		}
+		meta := strings.Fields(parts[0])
+		if len(meta) != 3 {
+			return fmt.Errorf("invalid Git metadata")
+		}
+		if meta[0] != "100644" && meta[0] != "100755" {
+			continue
+		}
+		name, e := RelativeName(parts[1])
 		if e != nil {
 			return e
 		}
-		name := strings.TrimSuffix(h.Name, "/")
+		if _, e = fmt.Fprintln(input, meta[2]); e != nil {
+			return e
+		}
+		header, e := reader.ReadString('\n')
+		if e != nil {
+			return fmt.Errorf("read Git batch header: %w", e)
+		}
+		fields := strings.Fields(header)
+		if len(fields) != 3 || fields[0] != meta[2] || fields[1] != "blob" {
+			return fmt.Errorf("unexpected Git batch response for %s", name)
+		}
+		size, e := strconv.ParseInt(fields[2], 10, 64)
+		if e != nil || size < 0 {
+			return fmt.Errorf("invalid Git blob size for %s", name)
+		}
+		path := filepath.Join(temp, filepath.FromSlash(name))
+		if e = os.MkdirAll(filepath.Dir(path), 0755); e != nil {
+			return e
+		}
+		mode := os.FileMode(0644)
+		if meta[0] == "100755" {
+			mode = 0755
+		}
+		f, e := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, mode)
+		if e != nil {
+			return e
+		}
+		_, copyErr := io.CopyN(f, reader, size)
+		closeErr := f.Close()
+		if copyErr != nil {
+			return copyErr
+		}
+		if closeErr != nil {
+			return closeErr
+		}
+		separator, e := reader.ReadByte()
+		if e != nil {
+			return e
+		}
+		if separator != '\n' {
+			return fmt.Errorf("invalid Git batch separator")
+		}
+	}
+	if e = input.Close(); e != nil {
+		return e
+	}
+	e = c.Wait()
+	waited = true
+	if e != nil {
+		return fmt.Errorf("export upstream blobs: %w %s", e, stderr.String())
+	}
+	return os.Rename(temp, destination)
+}
+
+// Legacy versions used git archive, which can rewrite bytes or omit files.
+// Repair only bytes proven to be exactly that archive representation. A third
+// representation remains a cache edit and is never overwritten.
+func repairArchiveSnapshot(ctx context.Context, repo, revision, snapshot string) error {
+	tree, e := gitRun(ctx, repo, "ls-tree", "-rz", revision)
+	if e != nil {
+		return e
+	}
+	repairs := []File{}
+	for _, entry := range strings.Split(tree, "\x00") {
+		if entry == "" {
+			continue
+		}
+		parts := strings.SplitN(entry, "\t", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid Git tree entry")
+		}
+		meta := strings.Fields(parts[0])
+		if len(meta) != 3 {
+			return fmt.Errorf("invalid Git metadata")
+		}
+		if meta[0] != "100644" && meta[0] != "100755" {
+			continue
+		}
+		name := parts[1]
 		if _, e = RelativeName(name); e != nil {
 			return e
 		}
-		p := filepath.Join(temp, filepath.FromSlash(name))
-		if h.Typeflag == tar.TypeDir {
-			if e = os.MkdirAll(p, 0755); e != nil {
-				return e
+		b, readErr := readCheckedBytes(snapshot, name)
+		if readErr == nil {
+			h := sha1.Sum(append([]byte(fmt.Sprintf("blob %d\x00", len(b))), b...))
+			if hex.EncodeToString(h[:]) == meta[2] {
+				continue
 			}
-			continue
+		} else if !os.IsNotExist(readErr) {
+			return readErr
 		}
-		if h.Typeflag != tar.TypeReg {
-			continue
-		}
-		if e = os.MkdirAll(filepath.Dir(p), 0755); e != nil {
-			return e
-		}
-		f, e := os.OpenFile(p, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
+		archived, present, e := archiveFile(ctx, repo, revision, name)
 		if e != nil {
 			return e
 		}
-		_, e = io.Copy(f, tr)
-		ce := f.Close()
+		if (readErr == nil && (!present || !bytes.Equal(b, archived))) || (readErr != nil && present) {
+			return fmt.Errorf("upstream cache differs from Git: %s", name)
+		}
+		raw, e := gitBlob(ctx, repo, revision, name)
 		if e != nil {
 			return e
 		}
-		if ce != nil {
-			return ce
+		repairs = append(repairs, File{Name: name, Data: raw, SHA256: Hash(raw)})
+	}
+	for _, f := range repairs {
+		if _, e = CheckedFile(snapshot, f.Name); e == nil {
+			e = replaceProjectFile(snapshot, f)
+		} else if os.IsNotExist(e) {
+			e = copyFiles(snapshot, []File{f})
+		}
+		if e != nil {
+			return e
 		}
 	}
-	if e = c.Wait(); e != nil {
-		return fmt.Errorf("archive upstream: %w %s", e, stderr.String())
+	return nil
+}
+
+func archiveFile(ctx context.Context, repo, revision, name string) ([]byte, bool, error) {
+	c := exec.CommandContext(ctx, "git", "archive", "--format=tar", revision, "--", name)
+	c.Dir = repo
+	c.Env = envList(CleanEnv(false, false))
+	encoded, e := c.Output()
+	if e != nil {
+		return nil, false, e
 	}
-	success = true
-	return os.Rename(temp, destination)
+	reader := tar.NewReader(bytes.NewReader(encoded))
+	for {
+		header, e := reader.Next()
+		if e == io.EOF {
+			return nil, false, nil
+		}
+		if e != nil {
+			return nil, false, e
+		}
+		if header.Name == name && header.Typeflag == tar.TypeReg {
+			b, e := io.ReadAll(reader)
+			return b, true, e
+		}
+	}
 }
 
 func trackedNames(ctx context.Context, repo, revision string) ([]string, error) {

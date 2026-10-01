@@ -299,3 +299,97 @@ func TestSyncInvalidOwnershipRejectedBeforeModelConfiguration(t *testing.T) {
 		t.Fatal("invalid ownership modified target history")
 	}
 }
+
+func archiveAttributeFixture(t *testing.T) (string, string) {
+	t.Helper()
+	repo := filepath.Join(t.TempDir(), "repo")
+	testPut(t, repo, ".gitattributes", "*.bat text eol=crlf\nbanner.txt export-subst\nhidden.txt export-ignore\n")
+	testPut(t, repo, "pi-test.bat", "@echo off\necho fixture\n")
+	testPut(t, repo, "banner.txt", "commit=$Format:%H$\n")
+	testPut(t, repo, "hidden.txt", "tracked and required\n")
+	wfInitRepo(t, repo)
+	wfGit(t, repo, "add", ".")
+	wfGit(t, repo, "commit", "-qm", "archive attribute fixture")
+	return repo, wfGit(t, repo, "rev-parse", "HEAD")
+}
+func TestSyncExportPreservesRawBlobsDespiteArchiveAttributes(t *testing.T) {
+	repo, revision := archiveAttributeFixture(t)
+	destination := filepath.Join(t.TempDir(), "snapshot")
+	if e := exportRevision(context.Background(), repo, revision, destination); e != nil {
+		t.Fatal(e)
+	}
+	if e := validateSnapshot(context.Background(), repo, revision, destination); e != nil {
+		t.Fatal(e)
+	}
+	for _, name := range []string{"pi-test.bat", "banner.txt", "hidden.txt"} {
+		want, e := gitBlob(context.Background(), repo, revision, name)
+		if e != nil {
+			t.Fatal(e)
+		}
+		got, e := readCheckedBytes(destination, name)
+		if e != nil || !bytes.Equal(got, want) {
+			t.Fatal("export transformed raw blob", name, e)
+		}
+	}
+}
+func TestSyncRepairsOnlyVerifiedLegacyArchiveBytes(t *testing.T) {
+	for _, tamper := range []bool{false, true} {
+		t.Run(map[bool]string{false: "legacy", true: "tampered"}[tamper], func(t *testing.T) {
+			repo, revision := archiveAttributeFixture(t)
+			project := t.TempDir()
+			snapshot := filepath.Join(project, ".cache/portsmith-upstream", revision)
+			for _, name := range []string{".gitattributes", "pi-test.bat", "banner.txt", "hidden.txt"} {
+				b, present, e := archiveFile(context.Background(), repo, revision, name)
+				if e != nil {
+					t.Fatal(e)
+				}
+				if present {
+					testPut(t, snapshot, name, string(b))
+				}
+			}
+			raw, e := gitBlob(context.Background(), repo, revision, "pi-test.bat")
+			if e != nil {
+				t.Fatal(e)
+			}
+			archived, e := readCheckedBytes(snapshot, "pi-test.bat")
+			if e != nil {
+				t.Fatal(e)
+			}
+			if bytes.Equal(raw, archived) || !bytes.Contains(archived, []byte("\r\n")) {
+				t.Fatal("fixture did not reproduce archive EOL conversion")
+			}
+			testPut(t, snapshot, "sync-before/old/source.ts.txt", "frozen previous source\n")
+			if tamper {
+				testPut(t, snapshot, "banner.txt", "user edited this cache\n")
+			}
+			p, e := syncSnapshot(context.Background(), project, repo, revision)
+			if tamper {
+				if e == nil {
+					t.Fatal("overwrote edited archive cache")
+				}
+				b, _ := readCheckedBytes(snapshot, "banner.txt")
+				if string(b) != "user edited this cache\n" {
+					t.Fatal("edit lost")
+				}
+				b, _ = readCheckedBytes(snapshot, "pi-test.bat")
+				if !bytes.Equal(b, archived) {
+					t.Fatal("partial repair before discovering edit")
+				}
+				return
+			}
+			if e != nil || p != snapshot {
+				t.Fatal("legacy cache not repaired", e)
+			}
+			if e = validateSnapshot(context.Background(), repo, revision, snapshot); e != nil {
+				t.Fatal(e)
+			}
+			b, e := readCheckedBytes(snapshot, "sync-before/old/source.ts.txt")
+			if e != nil || string(b) != "frozen previous source\n" {
+				t.Fatal("frozen source lost", e)
+			}
+			if _, e = syncSnapshot(context.Background(), project, repo, revision); e != nil {
+				t.Fatal("repair was not idempotent", e)
+			}
+		})
+	}
+}
