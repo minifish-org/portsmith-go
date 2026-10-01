@@ -237,7 +237,11 @@ func graph(nodes []graphNode) error {
 // inspectModules fully validates a version-2 module workflow before any model
 // call, task directory or commit.
 func inspectModules(planInput string) (*moduleInspection, error) {
-	root, err := filepath.EvalSymlinks(planInput)
+	absolute, err := filepath.Abs(planInput)
+	if err != nil {
+		return nil, err
+	}
+	root, err := filepath.EvalSymlinks(absolute)
 	if err != nil {
 		return nil, err
 	}

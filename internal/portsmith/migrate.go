@@ -233,7 +233,11 @@ func testFunctionPresent(text, name string) bool {
 // or commit. It is intentionally strict: every contract, judge and output path
 // is checked here, not lazily during execution.
 func inspectMigration(planInput string) (*migrationInspection, error) {
-	planRoot, err := filepath.EvalSymlinks(planInput)
+	absolute, err := filepath.Abs(planInput)
+	if err != nil {
+		return nil, err
+	}
+	planRoot, err := filepath.EvalSymlinks(absolute)
 	if err != nil {
 		return nil, err
 	}

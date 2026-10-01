@@ -29,6 +29,43 @@ func wfGit(t *testing.T, root string, args ...string) string {
 	return strings.TrimSpace(string(output))
 }
 
+// Relative --plan paths must resolve to the same Git root as absolute paths.
+// Checking only absolute fixture paths missed the normal documented CLI usage.
+func TestWorkflowRelativePlanPaths(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Run("v1", func(t *testing.T) {
+		f := wfNewV1Fixture(t)
+		relative, err := filepath.Rel(cwd, f.plan)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := inspectMigration(relative)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !filepath.IsAbs(got.Project) {
+			t.Fatalf("project remains relative: %q", got.Project)
+		}
+	})
+	t.Run("v2", func(t *testing.T) {
+		f := wfNewModuleFixture(t)
+		relative, err := filepath.Rel(cwd, f.plan)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := inspectModules(relative)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !filepath.IsAbs(got.Project) {
+			t.Fatalf("project remains relative: %q", got.Project)
+		}
+	})
+}
+
 func wfDecode(t *testing.T, data []byte) map[string]any {
 	t.Helper()
 	var out map[string]any

@@ -1,10 +1,14 @@
 # Portsmith Go
 
-A planned Go port of [Portsmith](https://github.com/minifish-org/portsmith), using [Pith](https://github.com/minifish-org/pith) as its embedded coding-agent SDK.
+A Go port of [Portsmith](https://github.com/minifish-org/portsmith), using [Pith](https://github.com/minifish-org/pith) as its embedded coding-agent SDK.
 
-**Current state: complete migration preparation, not a completed Go application.** The reviewed plan covers all 16 runtime TypeScript files. The generator will implement them in seven resumable steps; independent tests gate advancement. See [scope](migration/scope.json), [source ownership](migration/source-map.json), [contracts](migration/contracts), and [readiness evidence](migration/readiness).
+**Current state: all seven migration steps completed and accepted.** The implementation covers all 16 runtime TypeScript files. Start with [product usage](docs/USAGE.md), [compatibility](docs/COMPATIBILITY.md), and [the accepted migration receipt](migration/results/portsmith.json).
 
-## Run the migration
+Build the product with `CGO_ENABLED=0 go build -mod=readonly -o bin/portsmith ./cmd/portsmith`, then run `./bin/portsmith --help`. Existing reviewed v1/v2 plans are supported with fresh native execution records. Additive workflows can freeze an existing project as a baseline and generate new files; integration of replacements for existing files still needs an update transaction. See [source coverage](docs/source-map.json).
+
+## Reproduce the original migration
+
+The following records the original TypeScript-to-Go migration workflow. Its completed execution journal is historical evidence; use a clean destination to reproduce it. It is not the launcher for new migrations performed by the Go product.
 
 Keep the repositories beside one another:
 

@@ -25,7 +25,7 @@ integrate migrated code; they are not bundled.
 | `status`, `next` | no | no | no |
 | `judge-check`, `verify` | yes (Go toolchain) | no | no |
 | `run`, `migrate --commit` | yes | yes | yes |
-| `migrate --check` | no | no | no |
+| `migrate --check` | no | yes | no |
 
 `analyze` and `help` run with no Node, Go or Git on `PATH`; they are pure Go
 plus the embedded TypeScript compiler.
@@ -148,6 +148,21 @@ module plans are both supported. Progress is resumable from the journal.
 The model connection is created lazily on the first generation, reading
 `PORTSMITH_*` and then `OMNI_*` variables (optionally loaded from
 `--env-file`). Credentials are never printed.
+
+### Incremental migration
+
+A version-2 workflow can freeze existing project files using `baseline` and
+record the new migration under a separate `journal`. This supports adding new
+capabilities to an existing Go project. The current integration transaction
+refuses to overwrite existing product files or receipts, so updating an
+already-ported upstream implementation requires additional update-transaction
+support. Changing the journal path alone does not enable replacements.
+
+Prepare a fresh reviewed plan for each increment: pinned upstream source,
+source-to-Go mappings, output ownership, frozen baseline, contracts and
+independent judges. Completed TypeScript executor journals cannot be reused by
+the native executor. The tool does not automatically discover upstream releases
+or turn a Git diff into an accepted migration plan.
 
 ### help
 
