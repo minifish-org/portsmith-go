@@ -659,6 +659,22 @@ func RunPort(ctx context.Context, options RunOptions) (RunReport, error) {
 	if summarizeStream == nil {
 		summarizeStream = runNativeStreamFn(model)
 	}
+	// GenerateSummary builds its own stream options, so it cannot inherit the
+	// session's APIKey callback. Bind the current run credential explicitly
+	// without changing the summary's output budget or cancellation signal.
+	providerStream := summarizeStream
+	if providerStream != nil {
+		summarizeStream = func(m *aitypes.Model, transcript *aitypes.TranscriptContext, streamOptions *aitypes.SimpleStreamOptions) *aitypes.AssistantMessageEventStream {
+			request := aitypes.SimpleStreamOptions{}
+			if streamOptions != nil {
+				request = *streamOptions
+			}
+			if options.Model.APIKey != "" {
+				request.APIKey = runStringPtr(options.Model.APIKey)
+			}
+			return providerStream(m, transcript, &request)
+		}
+	}
 	reserve := codingagent.DefaultCompactionPolicy.ReserveTokens
 	policy := codingagent.RunPolicy{
 		MaxTurns:             options.MaxTurns,

@@ -8,6 +8,9 @@ package portsmith
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -193,6 +196,92 @@ func TestRunPortResumesDurableConversation(t *testing.T) {
 	}
 	if !second.Resumed || second.SessionFile != first.SessionFile || !restored.Load() {
 		t.Fatalf("conversation not resumed first=%+v second=%+v restored=%v", first, second, restored.Load())
+	}
+}
+
+// A long resumed conversation uses a separate summary request before normal
+// generation. Both requests must use the current run's explicit credentials,
+// including after an operator rotates the key between runs.
+func TestRunPortCompactionUsesCompatibleCredentials(t *testing.T) {
+	root := agentFixture(t)
+	agentWriteCandidate(t, root, agentGoodCode)
+	manager, err := openRunSession(filepath.Join(root, "pith-sessions"), filepath.Join(root, "candidate"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	sessionFile := manager.SessionFile()
+	for _, text := range []string{strings.Repeat("older-context ", 4000), "recent-context"} {
+		user := aitypes.NewUserMessageBlocks([]aitypes.ContentBlock{aitypes.TextBlock(text)}, 1)
+		assistant := aitypes.NewAssistantMessage(aitypes.ApiOpenAICompletions, "portsmith-compatible", "local-model", 2)
+		assistant.Content = []aitypes.ContentBlock{aitypes.TextBlock("previous-response")}
+		assistant.StopReason = aitypes.StopReasonStop
+		for _, message := range []aitypes.Message{aitypes.NewUserMessageVariant(user), aitypes.NewAssistantMessageVariant(assistant)} {
+			data, err := json.Marshal(message)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := manager.AppendMessage(data); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	if err := manager.Close(); err != nil {
+		t.Fatal(err)
+	}
+	sessionFile, err = filepath.EvalSymlinks(sessionFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var requests, summaries, generations atomic.Int32
+	key := "rotated-fixture-secret-do-not-log"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		if r.URL.Path != "/v1/chat/completions" || r.Header.Get("Authorization") != "Bearer "+key {
+			t.Error("compatible request did not receive the current run credential")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Error(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		content := "candidate ready"
+		tools, _ := body["tools"].([]any)
+		if len(tools) == 0 {
+			summaries.Add(1)
+			content = "compacted-checkpoint-marker"
+			if body["max_tokens"] != float64(codingagent.DefaultCompactionPolicy.ReserveTokens*8/10) {
+				t.Error("summary output budget was lost", body["max_tokens"])
+			}
+		} else {
+			generations.Add(1)
+			data, _ := json.Marshal(body["messages"])
+			if !strings.Contains(string(data), "compacted-checkpoint-marker") || strings.Contains(string(data), "older-context") {
+				t.Error("generation did not continue from the compacted checkpoint")
+			}
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		delta, _ := json.Marshal(map[string]any{"id": "fixture", "object": "chat.completion.chunk", "choices": []any{map[string]any{"index": 0, "delta": map[string]any{"role": "assistant", "content": content}, "finish_reason": nil}}})
+		fmt.Fprintf(w, "data: %s\n\n", delta)
+		fmt.Fprint(w, "data: {\"id\":\"fixture\",\"object\":\"chat.completion.chunk\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":1,\"total_tokens\":11}}\n\ndata: [DONE]\n\n")
+	}))
+	defer server.Close()
+	model := ModelConfig{ID: "local-model", BaseURL: server.URL + "/v1", APIKey: key, ContextWindow: 100000, MaxTokens: 90000}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	report, err := RunPort(ctx, RunOptions{Root: root, Model: model, AgentDir: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Status != "candidate_ready" || !report.Resumed || report.SessionFile != sessionFile || requests.Load() != 2 || summaries.Load() != 1 || generations.Load() != 1 {
+		t.Fatalf("compaction and resume failed: report=%+v requests=%d summaries=%d generations=%d", report, requests.Load(), summaries.Load(), generations.Load())
+	}
+	for _, name := range []string{sessionFile, filepath.Join(root, "last-run.json")} {
+		if strings.Contains(agentReadString(t, name), key) {
+			t.Fatal("compatible credential persisted in diagnostics or session")
+		}
 	}
 }
 
