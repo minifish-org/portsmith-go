@@ -117,7 +117,7 @@ func TestPortsmithJudgeSourceCoverageAndPithDependency(t *testing.T) {
 		t.Fatal("agent must embed Pith coding-agent")
 	}
 	mod := string(raw(t, filepath.Join(root, "go.mod")))
-	if !strings.Contains(mod, "github.com/minifish-org/pith v0.0.0-20260930152022-a50c87d65cf1") || strings.Contains(mod, "replace ") {
+	if !strings.Contains(mod, "github.com/minifish-org/pith v0.0.0-20261003041113-c4515fb25561") || strings.Contains(mod, "replace ") {
 		t.Fatal("unpinned or local-only Pith dependency")
 	}
 	for _, name := range []string{"docs/USAGE.md", "docs/COMPATIBILITY.md", "docs/THIRD_PARTY.md"} {

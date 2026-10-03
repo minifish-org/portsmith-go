@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/dop251/goja v0.0.0-20260926152631-39ec2650adc9
-	github.com/minifish-org/pith v0.0.0-20260930152022-a50c87d65cf1
+	github.com/minifish-org/pith v0.0.0-20261003041113-c4515fb25561
 )
 
 require (
@@ -30,5 +30,6 @@ require (
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
+	github.com/tetratelabs/wazero v1.9.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )

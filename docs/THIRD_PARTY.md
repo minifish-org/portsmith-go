@@ -15,7 +15,7 @@ licenses.
 | `internal/portsmith/typescript.txt` | TypeScript compiler | 5.9.3 | Apache-2.0 | `internal/portsmith/typescript-LICENSE.txt` |
 | `internal/portsmith/typescript-NOTICE.txt` | TypeScript third-party notices | 5.9.3 | See notice | `internal/portsmith/typescript-NOTICE.txt` |
 | `internal/portsmith/goja-LICENSE.txt` | goja JavaScript runtime | v0.0.0-20260926152631-39ec2650adc9 | MIT | `internal/portsmith/goja-LICENSE.txt` |
-| `internal/portsmith/pith-LICENSE.txt` | Pith coding-agent SDK | v0.0.0-20260930152022-a50c87d65cf1 | AGPL-3.0 | `internal/portsmith/pith-LICENSE.txt` |
+| `internal/portsmith/pith-LICENSE.txt` | Pith coding-agent SDK | v0.0.0-20261003041113-c4515fb25561 | AGPL-3.0 | `internal/portsmith/pith-LICENSE.txt` |
 
 TypeScript 5.9.3 is retained as a licensed third-party asset and executed with
 goja. It is not a Go reimplementation of the compiler. The TypeScript
@@ -28,7 +28,7 @@ Synchronization; the authoritative text is bundled verbatim.
 | Module | Version | License |
 | --- | --- | --- |
 | `github.com/dop251/goja` | v0.0.0-20260926152631-39ec2650adc9 | MIT |
-| `github.com/minifish-org/pith` | v0.0.0-20260930152022-a50c87d65cf1 | AGPL-3.0 |
+| `github.com/minifish-org/pith` | v0.0.0-20261003041113-c4515fb25561 | AGPL-3.0 |
 
 ## Indirect Go dependencies
 
@@ -61,6 +61,7 @@ license is the `LICENSE` file shipped in the module under the Go module cache.
 | `github.com/goccy/go-yaml` | v1.19.2 | MIT |
 | `github.com/google/pprof` | v0.0.0-20230207041349-798e818bf904 | Apache-2.0 |
 | `github.com/sabhiram/go-gitignore` | v0.0.0-20210923224102-525f6e181f06 | MIT |
+| `github.com/tetratelabs/wazero` | v1.9.0 | Apache-2.0 |
 | `golang.org/x/text` | v0.14.0 | BSD-3-Clause |
 
 The full module graph resolved by `go.sum` also includes standard transitive
