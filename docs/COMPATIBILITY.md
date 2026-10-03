@@ -96,6 +96,8 @@ directives and no model-selected dependencies. Runtime Python/Node runtimes are
 not required. Go and Git are external development tools required only by
 verification and migration integration.
 
-The pinned SDK's persistent sessions are recovery records for agent runs. This
-does not claim an implementation of Pi Durable or a general durable workflow
-engine.
+Portsmith's model backend uses Pith's `CreateAgentSession`. The pinned Pith
+dependency also provides an optional Durable SDK; adopting that harness in
+Portsmith requires a separate integration. The coding-agent's persistent
+sessions remain recovery records for agent runs, rather than a general durable
+workflow engine.

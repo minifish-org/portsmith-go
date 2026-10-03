@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/dop251/goja v0.0.0-20260926152631-39ec2650adc9
-	github.com/minifish-org/pith v0.0.0-20261003041113-c4515fb25561
+	github.com/minifish-org/pith v0.0.0-20261003091049-9ef56f7b1a53
 )
 
 require (

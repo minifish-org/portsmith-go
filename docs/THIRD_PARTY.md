@@ -15,7 +15,7 @@ licenses.
 | `internal/portsmith/typescript.txt` | TypeScript compiler | 5.9.3 | Apache-2.0 | `internal/portsmith/typescript-LICENSE.txt` |
 | `internal/portsmith/typescript-NOTICE.txt` | TypeScript third-party notices | 5.9.3 | See notice | `internal/portsmith/typescript-NOTICE.txt` |
 | `internal/portsmith/goja-LICENSE.txt` | goja JavaScript runtime | v0.0.0-20260926152631-39ec2650adc9 | MIT | `internal/portsmith/goja-LICENSE.txt` |
-| `internal/portsmith/pith-LICENSE.txt` | Pith coding-agent SDK | v0.0.0-20261003041113-c4515fb25561 | AGPL-3.0 | `internal/portsmith/pith-LICENSE.txt` |
+| `internal/portsmith/pith-LICENSE.txt` | Pith coding-agent SDK | v0.0.0-20261003091049-9ef56f7b1a53 | AGPL-3.0 | `internal/portsmith/pith-LICENSE.txt` |
 
 TypeScript 5.9.3 is retained as a licensed third-party asset and executed with
 goja. It is not a Go reimplementation of the compiler. The TypeScript
@@ -28,7 +28,7 @@ Synchronization; the authoritative text is bundled verbatim.
 | Module | Version | License |
 | --- | --- | --- |
 | `github.com/dop251/goja` | v0.0.0-20260926152631-39ec2650adc9 | MIT |
-| `github.com/minifish-org/pith` | v0.0.0-20261003041113-c4515fb25561 | AGPL-3.0 |
+| `github.com/minifish-org/pith` | v0.0.0-20261003091049-9ef56f7b1a53 | AGPL-3.0 |
 
 ## Indirect Go dependencies
 
@@ -74,6 +74,16 @@ helper modules (for example `golang.org/x/sys`, `golang.org/x/tools`,
 `github.com/stretchr/testify`, `github.com/stretchr/objx`,
 `gopkg.in/check.v1` and `gopkg.in/yaml.v3`). Their license texts are distributed
 with the module sources in the Go module cache and are not vendored here.
+
+Pith's optional Durable SDK adds pure-Go SQLite modules to the selected module
+graph: `modernc.org/sqlite v1.44.3`, `modernc.org/libc v1.67.6`,
+`modernc.org/mathutil v1.7.1` and `modernc.org/memory v1.11.0`. Their supporting
+modules include `github.com/dustin/go-humanize`, `github.com/google/uuid`,
+`github.com/mattn/go-isatty`, `github.com/ncruces/go-strftime`,
+`github.com/remyoudompheng/bigfft` and `golang.org/x/exp`.
+Portsmith's backend uses the coding-agent SDK; it does not import the Durable
+SQLite adapter. The release packager still includes notices for the full module
+graph, including these optional dependencies.
 
 The release packager includes license and notice texts from the complete pinned
 Go module graph under `licenses/modules/`, together with the Go standard-library
