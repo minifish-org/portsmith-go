@@ -23,7 +23,7 @@ claimed.
   changes.
 - The built-in EventStream oracle, the reviewed baseline and the known-broken
   negative control used to prove the judge still detects defects.
-- The Pith coding-agent SDK, its durable `SessionManager`, retry,
+- The Pith coding-agent SDK, its persistent `SessionManager`, retry,
   length-continuation, partial-tool rejection and auto-compaction.
 
 ## Adaptations
@@ -95,3 +95,7 @@ exhaustive equivalence.
 directives and no model-selected dependencies. Runtime Python/Node runtimes are
 not required. Go and Git are external development tools required only by
 verification and migration integration.
+
+The pinned SDK's persistent sessions are recovery records for agent runs. This
+does not claim an implementation of Pi Durable or a general durable workflow
+engine.

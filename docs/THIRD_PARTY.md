@@ -55,7 +55,7 @@ license is the `LICENSE` file shipped in the module under the Go module cache.
 | `github.com/aws/aws-sdk-go-v2/service/ssooidc` | v1.43.1 | Apache-2.0 |
 | `github.com/aws/aws-sdk-go-v2/service/sts` | v1.51.1 | Apache-2.0 |
 | `github.com/aws/smithy-go` | v1.28.1 | Apache-2.0 |
-| `github.com/coder/websocket` | v1.8.15 | MIT |
+| `github.com/coder/websocket` | v1.8.15 | ISC |
 | `github.com/dlclark/regexp2/v2` | v2.5.2 | MIT |
 | `github.com/go-sourcemap/sourcemap` | v2.1.3+incompatible | BSD-3-Clause |
 | `github.com/goccy/go-yaml` | v1.19.2 | MIT |
@@ -73,6 +73,11 @@ helper modules (for example `golang.org/x/sys`, `golang.org/x/tools`,
 `github.com/stretchr/testify`, `github.com/stretchr/objx`,
 `gopkg.in/check.v1` and `gopkg.in/yaml.v3`). Their license texts are distributed
 with the module sources in the Go module cache and are not vendored here.
+
+The release packager includes license and notice texts from the complete pinned
+Go module graph under `licenses/modules/`, together with the Go standard-library
+license and the embedded asset notices. `THIRD_PARTY_NOTICES.md` in each archive
+contains this component inventory. See `scripts/release.go` for packaging.
 
 ## Development tools
 

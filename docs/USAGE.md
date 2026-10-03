@@ -9,12 +9,16 @@ production operations.
 ## Building
 
 ```sh
-CGO_ENABLED=0 go build -mod=readonly -o portsmith ./cmd/portsmith
+CGO_ENABLED=0 go build -mod=readonly -trimpath -o bin/portsmith ./cmd/portsmith
+./bin/portsmith --help
 ```
 
 The binary builds with `CGO_ENABLED=0` for macOS arm64, Linux amd64 and Windows
 amd64. Go and Git remain external development tools used to compile, verify and
 integrate migrated code; they are not bundled.
+
+The commands below use `portsmith` as shorthand for `./bin/portsmith`, or for a
+binary you have placed on `PATH`. Build from the repository root.
 
 ## Runtime requirements
 
@@ -34,9 +38,80 @@ plus the embedded TypeScript compiler.
 
 ## Commands
 
-Run `portsmith --help` for the complete synopsis. All commands print machine
-readable JSON where the source did, and write errors to stderr with exit status
-1.
+Run `portsmith --help` for the complete synopsis. Result objects are printed as
+JSON; execution commands also print progress. Errors go to stderr with exit
+status 1. See [exit status](#exit-status) for the preparation result.
+
+## Planning and execution
+
+Portsmith separates planning from implementation. `analyze` and `plan` create
+factual analysis and an initial draft without calling a model. A developer or
+external coding agent must turn the draft into a reviewed executable plan.
+
+For a first migration, use a pinned source checkout and a separate target Git
+repository. The target needs a committed `go.mod` and, when dependencies require
+it, `go.sum`. Choose and test the Go dependencies before freezing the workflow.
+
+```sh
+portsmith analyze --source ../upstream --out ../target/migration/analysis.json
+portsmith plan --analysis ../target/migration/analysis.json \
+  --out ../target/migration/initial --revision <pinned-source-revision>
+```
+
+Give the draft to the reviewer with this task:
+
+> Complete a version-2 migration plan for this source and target. Define the
+> module boundaries, ordered steps, behavioral contracts, output ownership,
+> frozen independent Go judges and workflow configuration. Cover observable
+> behavior and dependency adaptations. Mark a batch ready only when its
+> contracts and acceptance tests are complete. Preserve the frozen source and
+> dependency manifests; do not treat generated candidate tests as independent
+> evidence.
+
+The reviewer must understand the source behavior; a generated directory-based
+draft is not a complete specification. For the v2 schema, the reviewed
+[`migration/plan.json`](../migration/plan.json) and
+[`migration/workflow.json`](../migration/workflow.json) are historical examples.
+Their recorded execution applies to this repository, so do not reuse their
+journal or receipts for a new target.
+
+Then preflight and execute the entire prepared plan:
+
+```sh
+portsmith migrate --plan ../target/migration/initial --check
+portsmith migrate --plan ../target/migration/initial --commit --env-file .env
+```
+
+No per-file `prepare`, `run`, `verify` or `accept` loop is required for a reviewed
+workflow. These lower-level commands remain useful for inspecting a single
+task. Version-1 plans are also supported, with their original workflow behavior.
+For an already migrated project, prefer the [incremental guide](INCREMENTAL.md).
+
+## Model configuration
+
+Store credentials in an ignored local `.env`, or supply them through your
+process environment:
+
+```dotenv
+PORTSMITH_BASE_URL=https://api.deepseek.com/v1
+PORTSMITH_MODEL=deepseek-flash
+PORTSMITH_API_KEY=replace-with-your-own-key
+```
+
+The backend uses an OpenAI-compatible Chat Completions endpoint with tool
+calling. `PORTSMITH_BASE_URL`, `PORTSMITH_MODEL` and `PORTSMITH_API_KEY` take
+precedence over `OMNI_BASE_URL`, `OMNI_MODEL` and `OMNI_API_KEY`. Loading
+`--env-file` never replaces an existing process variable. If no file is
+specified, an existing `.env` in the working directory is loaded lazily when
+execution first needs a model.
+
+Known model capacities come from the pinned Pith catalog. Optional
+`PORTSMITH_CONTEXT_WINDOW` and `PORTSMITH_MAX_TOKENS` overrides are validated
+against those capacities. The model's input/output usage is reported when the
+provider supplies it; compatible providers may not report a monetary cost.
+Never commit real credentials, session logs or unreviewed provider transcripts.
+
+## Command reference
 
 ### analyze
 
@@ -170,7 +245,7 @@ portsmith sync --project ../pith --upstream <full-new-Pi-hash>
 # After contracts, ownership and independent judges have been reviewed:
 portsmith sync --project ../pith --upstream <full-new-Pi-hash> --check
 portsmith sync --project ../pith --upstream <full-new-Pi-hash> --commit \
-  --env-file ../omni-pi/.env
+  --env-file .env
 ```
 
 The execution command runs all reviewed steps with Pith, verifies and repairs
@@ -205,6 +280,10 @@ the equivalent workflow is the `DemoTask` helper in
 ```
 
 A small program can drive the same offline replay:
+
+Place this helper inside this repository, for example under
+`cmd/offline-demo/main.go`; Go's `internal` package rule prevents importing it
+from an unrelated module. The helper still needs the example files above.
 
 ```go
 package main

@@ -1,94 +1,165 @@
 # Portsmith Go
 
-A Go port of [Portsmith](https://github.com/minifish-org/portsmith), using [Pith](https://github.com/minifish-org/pith) as its embedded coding-agent SDK.
+An inspectable, resumable TypeScript-to-Go migration workbench. Portsmith Go
+turns a reviewed migration plan into Go candidates, checks them against frozen
+acceptance tests, repairs failures with an embedded coding agent, and commits
+accepted modules.
 
-**Current state: all seven migration steps completed and accepted.** The implementation covers all 16 runtime TypeScript files. Start with [product usage](docs/USAGE.md), [compatibility](docs/COMPATIBILITY.md), and [the accepted migration receipt](migration/results/portsmith.json).
+It is a Go port of [Portsmith](https://github.com/minifish-org/portsmith), using
+[Pith](https://github.com/minifish-org/pith) as its coding-agent backend. The native
+executor also supports incremental upstream migration and automatic repair of
+whole-project integration failures.
 
-Build the product with `CGO_ENABLED=0 go build -mod=readonly -o bin/portsmith ./cmd/portsmith`, then run `./bin/portsmith --help`. Existing reviewed v1/v2 plans are supported with fresh native execution records. Incremental workflows support frozen read-only baselines and explicitly authorized replacements. The native `sync` command compares upstream Git revisions, follows reverse dependencies, and creates a fresh migration draft. See [incremental sync](docs/INCREMENTAL.md). See [source coverage](docs/source-map.json).
-
-For v2 plans run by the Go product, failed whole-project integration tests also return to the agent repair loop. Portsmith rolls back its uncommitted target files, retains earlier accepted checkpoints and the final candidate/session, and gives the agent the actual failure report. It commits the module only after cumulative acceptance and whole-project tests pass. Archived failures remain available under the final task's `integration-failures/` directory.
-
-## Reproduce the original migration
-
-The following records the original TypeScript-to-Go migration workflow. Its completed execution journal is historical evidence; use a clean destination to reproduce it. It is not the launcher for new migrations performed by the Go product.
-
-Keep the repositories beside one another:
+## How it works
 
 ```text
-work/
-  portsmith/       existing TypeScript executor, with dependencies and dist/ built
-  portsmith-go/    this destination repository
-  omni-pi/.env    your existing model credentials (not copied into this repository)
+Pinned TypeScript source + reviewed plan + independent Go acceptance tests
+                                |
+                                v
+                    Portsmith Go workbench
+                      |                 |
+                      v                 v
+              Pith coding agent     Go / Git
+                      |             verification,
+                      v             recovery, commits
+                Model provider
 ```
 
-Use Node 22+, Git, and Go with automatic toolchain downloads enabled. The launcher selects Go 1.25.0 and downloads the pinned module graph before the executor's offline verification. The first preparation may need network access. It defaults to DeepSeek Flash at `https://api.deepseek.com/v1`; credentials come from the supplied environment file or process environment. Existing `OMNI_API_KEY` is supported. No key belongs in a command, plan, source file, or Git commit.
+- Analyze TypeScript imports, exports and dependency groups without calling a
+  model.
+- Freeze source snapshots, contracts, dependency manifests and independent
+  judges by hash before execution.
+- Generate and repair Go code with Pith's tools, persistent sessions, retry and
+  compaction.
+- Verify isolated candidates, then run the target project's regression suite.
+- For version-2 plans, roll back uncommitted integration files and return test
+  failures to the agent for repair. Keep earlier checkpoints and failure reports.
+- Resume the same command after interruption. Commit accepted modules; Git push
+  remains a separate operator action.
+- Compare upstream Git revisions with `sync`, follow reverse import impact and
+  prepare a reviewed increment with explicit TypeScript-to-Go ownership.
 
-From this directory:
+Portsmith executes the plan; a developer or an external coding agent prepares
+and reviews the behavioral contracts, ownership and acceptance tests. A new
+upstream hash produces a draft, not an automatically certified port.
 
-```bash
-# Offline with respect to the model: validate every migration step.
-node migration/run.mjs --check
+## Build and run
 
-# Execute all seven steps using the existing Portsmith + Pi backend.
-node migration/run.mjs --commit --env-file ../omni-pi/.env
-```
+Install Go 1.25 or later and Git, then build from source:
 
-This is one migration command, not seven manual prepare/run/verify commands. It automatically generates, tests, repairs, checkpoints and advances. It first commits the preparation materials, then commits the complete accepted module. It never pushes. `Ctrl-C` preserves the current candidate and agent session; rerun the exact command to resume.
-
-The default model turns, repair attempts and runtime are unlimited. To impose an intentional budget, forward `--max-attempts`, `--max-turns` or `--timeout`; zero disables the corresponding limit. Environment overrides `PORTSMITH_MODEL`, `PORTSMITH_BASE_URL`, `PORTSMITH_MAX_TOKENS` and `PORTSMITH_CONTEXT_WINDOW` remain available. No launcher limit shrinks the model's declared capacities.
-
-Generated candidates appear under `.portsmith/runs/portsmith/<step>/port/candidate/`. Accepted step progress stays in `.portsmith/modules.json`. Final product files are integrated into `internal/portsmith/`, `cmd/portsmith/` and `docs/` after cumulative acceptance. A ready plan is not proof that generated Go code is correct; inspect the final tests, source map, compatibility notes and receipt before release.
-
-## What is being ported
-
-| Step | Behavior |
-| --- | --- |
-| foundation | Files, locks, child processes, diagnostics, model configuration |
-| analysis | TypeScript AST/module resolution, dependency analysis, draft plans |
-| workspace | Task snapshots, immutable seeds/judges, editable candidates, hashes |
-| verification | Compile/vet/tests, independent judges, live EventStream oracle |
-| backend | Pith coding tools, repair loop, durable sessions, retry, compaction |
-| workflow | v1/v2 migration, automatic advancement, recovery, additive baselines, commits |
-| delivery | Complete CLI, standalone/cross builds, usage and compatibility documentation |
-
-All steps belong to one module because they form one CLI and share the same internal package. Their files remain editable until module acceptance, while earlier independent tests remain cumulative. A step is a recovery checkpoint; a module is the integration/commit boundary.
-
-## Architecture and distribution
-
-```text
-Migration now: TypeScript Portsmith -> Pi coding-agent -> DeepSeek Flash
-                                     generates and validates Go candidates
-
-Result:        Go CLI -> Go workbench -> Pith coding-agent -> model provider
-                           |
-                           +-> TypeScript compiler embedded in Goja
-                           +-> external Go / Git for verification and commits
-```
-
-The product will build with `CGO_ENABLED=0`. No installed Node/npm/Pi is needed by the Go binary. The TypeScript 5.9.3 compiler remains a pinned, licensed JavaScript library embedded in that binary and interpreted by pure-Go Goja; it is not a compiler port. This preserves the original analyzer's AST and TypeScript resolution semantics. Small embedded bridge scripts are allowed; the Portsmith application itself is ported to Go.
-
-Go and Git are still needed for compiling/verifying/integrating generated Go projects. They are operator tools, not a hidden Node runtime. Pi's JavaScript extensions are not automatically portable to Pith; use its Go hooks/resources. Existing TS in-flight journals and Pi session files are not promised to resume in the native executor; start a fresh native run. See [migration rules](migration/RULEBOOK.md).
-
-After migration completes:
-
-```bash
-CGO_ENABLED=0 go test ./...
-CGO_ENABLED=0 go build -o bin/portsmith ./cmd/portsmith
+```sh
+git clone https://github.com/minifish-org/portsmith-go.git
+cd portsmith-go
+CGO_ENABLED=0 go build -mod=readonly -trimpath -o bin/portsmith ./cmd/portsmith
 ./bin/portsmith --help
 ```
 
-## Review the preparation
+The product is a single Go binary and builds without CGO. It embeds its analyzer
+and Pith backend; Node, npm and a Pi installation are not required. Go and Git
+must still be installed when compiling, verifying and integrating generated Go
+projects. See the [command requirements](docs/USAGE.md#runtime-requirements).
 
-```bash
-# Compile every frozen judge, verify empty-code rejection, exercise dependency probes.
-node migration/audit.mjs
+## Configure a model
 
-# Check the same v1/v2/resume/additive fixtures against the original executor.
-node migration/audit-upstream.mjs
+Copy [.env.example](.env.example) to an ignored `.env` file and fill in your
+provider credentials locally. This example uses DeepSeek Flash through its
+OpenAI-compatible interface:
+
+```dotenv
+PORTSMITH_BASE_URL=https://api.deepseek.com/v1
+PORTSMITH_MODEL=deepseek-flash
+PORTSMITH_API_KEY=replace-with-your-own-key
 ```
 
-The audit makes no model calls. It uses temporary directories and removes them afterward. It proves preparation and a limited set of dependency/negative-control behaviors; it does not prove complete source equivalence. The module's generation task must also port the original regression tests.
+Pass `--env-file .env` to an execution command. `PORTSMITH_*` variables take
+precedence over the compatible `OMNI_*` names; existing process variables take
+precedence over values loaded from the file. Analysis and preflight checks make
+no model calls. Model execution uses your provider account.
 
-`migration/build-plan.mjs` is a maintainer-only material generator. Do not run it during an active migration: changing frozen material invalidates execution receipts. Source is frozen at the revision in [pins.json](migration/pins.json), exported from Git into ignored `.cache/`, and checked by SHA-256. Pith is a published pinned Go dependency, with no local `replace`.
+## Execute a reviewed migration
 
-All new product text and documentation are English. Portsmith Go retains the [AGPL-3.0 license](LICENSE); the embedded compiler and Pith keep their own third-party notices.
+For an initial migration, analyze the source and create a draft with `analyze`
+and `plan`. Complete the plan, workflow, contracts and independent judges before
+running it. See [planning and execution](docs/USAGE.md#planning-and-execution).
+
+Given a prepared plan at `../target/migration/initial`:
+
+```sh
+./bin/portsmith migrate --plan ../target/migration/initial --check
+./bin/portsmith migrate --plan ../target/migration/initial --commit --env-file .env
+```
+
+The execution command advances through all prepared steps and commits accepted
+modules. Default model turns, repair attempts and runtime are unlimited. Ctrl-C
+preserves progress; repeat the same command to continue. Positive budget flags
+are available when you want a limit. See [usage](docs/USAGE.md) and
+[integration repair](docs/INCREMENTAL.md#automatic-integration-repair).
+
+## Keep a migrated project current
+
+For an existing Pith checkout, import its migration records and source maps once,
+then review and commit the resulting `migration/sync.json`:
+
+```sh
+./bin/portsmith sync --init --project ../pith
+```
+
+Choose a full upstream Git commit and prepare the increment:
+
+```sh
+./bin/portsmith sync --project ../pith --upstream <full-upstream-commit>
+```
+
+Review and complete the generated draft's contracts, output ownership and
+independent judges. Then execute the whole increment:
+
+```sh
+./bin/portsmith sync --project ../pith --upstream <full-upstream-commit> --check
+./bin/portsmith sync --project ../pith --upstream <full-upstream-commit> \
+  --commit --env-file .env
+```
+
+The upstream baseline advances only after complete acceptance. Other migrated
+projects can supply the same ownership configuration. See the
+[incremental migration guide](docs/INCREMENTAL.md) for the schema, draft files,
+review requirements and recovery rules.
+
+## Scope and evidence
+
+This is an experimental migration workbench, not a guarantee of semantic
+equivalence. Passing tests prove the checked behaviors. Review the generated
+code and ensure the acceptance contracts cover the behavior you depend on.
+
+The analyzer embeds the licensed TypeScript 5.9.3 JavaScript compiler and runs
+it in pure-Go Goja. The compiler itself has not been rewritten in Go. Pi
+JavaScript extensions are not executed; equivalent behavior needs Go tools or
+Pith hooks. Local model-controlled shell execution is not an OS security
+sandbox. Run migrations in a dedicated working copy with appropriate local
+permissions.
+
+The original migration ported all 16 runtime TypeScript files through seven
+accepted steps. Its [receipt](migration/results/portsmith.json),
+[source map](docs/source-map.json) and [compatibility notes](docs/COMPATIBILITY.md)
+record that scope and its adaptations. Native additions are documented
+separately from that historical acceptance.
+
+## Contribute and reproduce
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) for the code layout and offline
+checks. Product code, logs and documentation are English.
+
+The scripts under `migration/` record the original TypeScript Portsmith + Pi
+migration of this repository. They require the original TypeScript executor and
+Node 22+, and are not needed by the Go product. Reproduction must use a clean
+destination and the pinned material in [migration/pins.json](migration/pins.json).
+Do not regenerate frozen migration inputs during an active run.
+
+The historical offline checks are `node migration/run.mjs --check`,
+`node migration/audit.mjs` and `node migration/audit-upstream.mjs`. The historical
+execution launcher is `node migration/run.mjs --commit --env-file <local-env>`;
+it calls a model. See [migration rules](migration/RULEBOOK.md) before reproducing.
+
+## License
+
+Portsmith Go is licensed under [AGPL-3.0](LICENSE). Embedded assets and
+dependencies retain their own licenses; see [third-party notices](docs/THIRD_PARTY.md).

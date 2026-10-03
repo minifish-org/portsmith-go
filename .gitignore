@@ -1,6 +1,7 @@
 .cache/
 .portsmith/
 bin/
+dist/
 .env
 .env.*
 !.env.example
