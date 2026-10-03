@@ -130,16 +130,22 @@ func TestUpdateRecoveryPreservesOriginalAndVerifiedHashes(t *testing.T) {
 	for _, mode := range []string{"partial", "after-commit", "tamper"} {
 		t.Run(mode, func(t *testing.T) {
 			project, plan := updateFixture(t)
-			testPut(t, project, "root_test.go", "package root\nimport (\"os\";\"testing\")\nfunc TestIntegrationEnvironment(t *testing.T){if _,e:=os.Stat(\".portsmith/reject\");e==nil{t.Fatal(\"temporary integration failure\")}}\n")
-			wfGit(t, project, "add", "root_test.go")
-			wfGit(t, project, "commit", "-qm", "project regression")
-			testPut(t, project, ".portsmith/reject", "yes")
+			// Interrupt the commit after successful integration. Integration test
+			// failures now reopen the final step instead of leaving this phase.
+			testPut(t, project, ".git/hooks/pre-commit", "#!/bin/sh\nif test -f .portsmith/reject; then echo simulated commit interruption >&2; exit 1; fi\n")
+			if e := os.Chmod(filepath.Join(project, ".git/hooks/pre-commit"), 0o755); e != nil {
+				t.Fatal(e)
+			}
 			calls := 0
 			g := updateGenerator(t)
-			o := MigrationOptions{Plan: plan, Commit: true, MaxAttempts: 1, Generate: func(ctx context.Context, r, f string) (RunReport, error) { calls++; return g(ctx, r, f) }}
+			o := MigrationOptions{Plan: plan, Commit: true, MaxAttempts: 1, Generate: func(ctx context.Context, r, f string) (RunReport, error) {
+				calls++
+				testPut(t, project, ".portsmith/reject", "yes")
+				return g(ctx, r, f)
+			}}
 			_, e := Migrate(context.Background(), o)
-			if e == nil || !strings.Contains(e.Error(), "integration tests failed") {
-				t.Fatal("expected pending integration failure", e)
+			if e == nil || !strings.Contains(e.Error(), "simulated commit interruption") {
+				t.Fatal("expected pending commit interruption", e)
 			}
 			state, e := readJSON[moduleState](project, ".portsmith/increment/modules.json")
 			if e != nil {

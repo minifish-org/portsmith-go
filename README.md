@@ -6,6 +6,8 @@ A Go port of [Portsmith](https://github.com/minifish-org/portsmith), using [Pith
 
 Build the product with `CGO_ENABLED=0 go build -mod=readonly -o bin/portsmith ./cmd/portsmith`, then run `./bin/portsmith --help`. Existing reviewed v1/v2 plans are supported with fresh native execution records. Incremental workflows support frozen read-only baselines and explicitly authorized replacements. The native `sync` command compares upstream Git revisions, follows reverse dependencies, and creates a fresh migration draft. See [incremental sync](docs/INCREMENTAL.md). See [source coverage](docs/source-map.json).
 
+For v2 plans run by the Go product, failed whole-project integration tests also return to the agent repair loop. Portsmith rolls back its uncommitted target files, retains earlier accepted checkpoints and the final candidate/session, and gives the agent the actual failure report. It commits the module only after cumulative acceptance and whole-project tests pass. Archived failures remain available under the final task's `integration-failures/` directory.
+
 ## Reproduce the original migration
 
 The following records the original TypeScript-to-Go migration workflow. Its completed execution journal is historical evidence; use a clean destination to reproduce it. It is not the launcher for new migrations performed by the Go product.

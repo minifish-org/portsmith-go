@@ -147,6 +147,13 @@ no model calls, so it needs no key. `--commit` performs transactional per-unit
 integration and commits; it never pushes. Version-1 plans and version-2
 module plans are both supported. Progress is resumable from the journal.
 
+With version-2 plans, failed whole-project tests automatically reopen the final
+candidate for agent repair. Earlier accepted checkpoints and the agent session
+survive; uncommitted transaction files are restored before generation resumes.
+Full failure reports remain under the final task's `integration-failures/`.
+The same command continues through cumulative acceptance, integration and the
+module commit. See [integration repair and recovery](INCREMENTAL.md#automatic-integration-repair).
+
 The model connection is created lazily on the first generation, reading
 `PORTSMITH_*` and then `OMNI_*` variables (optionally loaded from
 `--env-file`). Credentials are never printed.

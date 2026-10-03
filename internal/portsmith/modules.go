@@ -123,24 +123,26 @@ type moduleCommit struct {
 
 // modulePending is the version-2 transactional integration record.
 type modulePending struct {
-	Module      string        `json:"module"`
-	Base        string        `json:"base"`
-	Files       []NamedDigest `json:"files"`
-	Message     string        `json:"message"`
-	Task        string        `json:"task"`
-	Fingerprint string        `json:"fingerprint"`
-	Staging     string        `json:"staging"`
-	Before      []NamedDigest `json:"before,omitempty"`
+	Module      string                   `json:"module"`
+	Base        string                   `json:"base"`
+	Files       []NamedDigest            `json:"files"`
+	Message     string                   `json:"message"`
+	Task        string                   `json:"task"`
+	Fingerprint string                   `json:"fingerprint"`
+	Staging     string                   `json:"staging"`
+	Before      []NamedDigest            `json:"before,omitempty"`
+	Repair      *moduleIntegrationRepair `json:"repair,omitempty"`
 }
 
 // moduleState is the version-2 migration journal.
 type moduleState struct {
-	Version  int            `json:"version"`
-	Identity string         `json:"identity"`
-	Steps    []moduleDone   `json:"steps"`
-	Modules  []moduleCommit `json:"modules"`
-	Pending  *modulePending `json:"pending,omitempty"`
-	Attempts map[string]int `json:"attempts"`
+	Version  int                      `json:"version"`
+	Identity string                   `json:"identity"`
+	Steps    []moduleDone             `json:"steps"`
+	Modules  []moduleCommit           `json:"modules"`
+	Pending  *modulePending           `json:"pending,omitempty"`
+	Repair   *moduleIntegrationRepair `json:"repair,omitempty"`
+	Attempts map[string]int           `json:"attempts"`
 }
 
 // moduleInspection is the fully validated version-2 execution snapshot.
@@ -856,6 +858,9 @@ func validDone(ctx context.Context, inspected *moduleInspection, state *moduleSt
 	if err := validateUpdateWorkspace(inspected, state); err != nil {
 		return err
 	}
+	if err := validateIntegrationRepair(inspected, state); err != nil {
+		return err
+	}
 	verified := map[string]bool{}
 	for _, step := range state.Steps {
 		if verified[step.Key] {
@@ -1134,6 +1139,7 @@ type v2Runner struct {
 	maxAttempts int
 	maxUnits    int
 	state       moduleState
+	runAttempts map[string]int
 }
 
 func (m *v2Runner) checkCancel() error {
@@ -1171,7 +1177,10 @@ func (m *v2Runner) unchanged() error {
 		hashOrEmpty(now.Sum) != hashOrEmpty(m.inspected.Sum) {
 		return errors.New("Migration materials changed during execution; stopped. Review materials before rerunning")
 	}
-	return validateUpdateWorkspace(m.inspected, &m.state)
+	if err := validateUpdateWorkspace(m.inspected, &m.state); err != nil {
+		return err
+	}
+	return validateIntegrationRepair(m.inspected, &m.state)
 }
 
 func (m *v2Runner) run() (json.RawMessage, error) {
@@ -1183,6 +1192,10 @@ func (m *v2Runner) run() (json.RawMessage, error) {
 		return nil, err
 	}
 	m.state = state
+	if m.state.Attempts == nil {
+		m.state.Attempts = map[string]int{}
+	}
+	m.runAttempts = map[string]int{}
 	if err := m.checkCancel(); err != nil {
 		return nil, err
 	}
@@ -1483,6 +1496,11 @@ func (m *v2Runner) exchangeStep(item *moduleItem, module *moduleDef, taskRel, ro
 		return err
 	}
 	feedback := ""
+	integrationFeedback, err := m.integrationFeedback(item.Key)
+	if err != nil {
+		return err
+	}
+	needsRepair := integrationFeedback != ""
 	validate := func() (*CurrentVerificationResult, error) {
 		files, err := CandidateFiles(root)
 		if err != nil {
@@ -1532,11 +1550,12 @@ func (m *v2Runner) exchangeStep(item *moduleItem, module *moduleDef, taskRel, ro
 			}
 		}
 	}
-	attempt := 0
-	for verification == nil || !verification.Current || verification.Report.Status != "behavior_verified" {
-		if m.maxAttempts > 0 && attempt >= m.maxAttempts {
+	for needsRepair || verification == nil || !verification.Current || verification.Report.Status != "behavior_verified" {
+		if m.maxAttempts > 0 && m.runAttempts[item.Key] >= m.maxAttempts {
 			report := "No valid verification report yet"
-			if verification != nil && verification.Current {
+			if needsRepair {
+				report = integrationFeedback
+			} else if verification != nil && verification.Current {
 				report = verificationDiagnostics(verification.Report, 2000)
 			} else if feedback != "" {
 				report = feedback
@@ -1548,12 +1567,12 @@ func (m *v2Runner) exchangeStep(item *moduleItem, module *moduleDef, taskRel, ro
 			return err
 		}
 		m.state.Attempts[item.Key]++
-		attempt++
+		m.runAttempts[item.Key]++
 		if err := m.save(); err != nil {
 			return err
 		}
 		m.log(fmt.Sprintf("%s generation/repair %d", item.Key, m.state.Attempts[item.Key]))
-		generated, err := m.options.Generate(m.ctx, root, feedback)
+		generated, err := m.options.Generate(m.ctx, root, strings.TrimSpace(integrationFeedback+"\n"+feedback))
 		if err != nil {
 			return err
 		}
@@ -1563,6 +1582,7 @@ func (m *v2Runner) exchangeStep(item *moduleItem, module *moduleDef, taskRel, ro
 		if modelRunFailed(generated.Status) {
 			return fmt.Errorf("Model run failed: %s; details: %s; candidate preserved", valueOr(generated.Error, generated.Status), filepath.Join(root, "last-run.json"))
 		}
+		needsRepair = false
 		result, err := validate()
 		if err != nil {
 			verification = nil
@@ -1603,6 +1623,9 @@ func (m *v2Runner) exchangeStep(item *moduleItem, module *moduleDef, taskRel, ro
 		Fingerprint: fingerprint,
 		Files:       checkpoint,
 	})
+	if m.state.Repair != nil && m.state.Repair.Key == item.Key {
+		m.state.Repair = nil
+	}
 	if err := m.save(); err != nil {
 		return err
 	}
@@ -1755,6 +1778,9 @@ func (m *v2Runner) recover() error {
 	}
 	accepted := head
 	if head != pending.Base {
+		if pending.Repair != nil {
+			return errors.New("HEAD changed during integration rollback; state preserved")
+		}
 		parent, err := gitRun(m.ctx, m.inspected.Project, "rev-parse", "HEAD^")
 		if err != nil {
 			return err
@@ -1791,6 +1817,8 @@ func (m *v2Runner) recover() error {
 		if err := assertFiles(m.inspected.Project, pending.Files); err != nil {
 			return err
 		}
+	} else if pending.Repair != nil {
+		return m.rollbackIntegration()
 	} else {
 		dirty, err := dirtyFiles(m.ctx, m.inspected.Project)
 		if err != nil {
@@ -1849,9 +1877,15 @@ func (m *v2Runner) recover() error {
 		if err := AtomicJSON(filepath.Join(root, "integration-tests.json"), result); err != nil {
 			return err
 		}
+		if err := m.checkCancel(); err != nil {
+			return err
+		}
+		if result.Code == nil || result.TimedOut || result.Truncated || result.Cancelled {
+			return errors.New("Project integration tests could not finish; no commit created, pending transaction preserved. See integration-tests.json")
+		}
 		counts := testResults(result, "TestPortsmithJudge")
 		if !succeeded(result) || counts.Skipped > 0 || !requiredTestsPassed(task, counts.PassedNames) {
-			return errors.New("Project integration tests failed; no commit created, state preserved")
+			return m.beginIntegrationRepair(result)
 		}
 		if err := m.checkCancel(); err != nil {
 			return err
@@ -1859,7 +1893,17 @@ func (m *v2Runner) recover() error {
 		if err := m.unchanged(); err != nil {
 			return err
 		}
+		verification, err = CurrentVerification(root)
+		if err != nil {
+			return err
+		}
+		if verification == nil || !verification.Current || verification.Report.Status != "behavior_verified" || verification.Report.Fingerprint != pending.Fingerprint {
+			return errors.New("Verification became invalid during project integration; no commit created")
+		}
 		if err := assertFiles(m.inspected.Project, pending.Files); err != nil {
+			return err
+		}
+		if err := m.integrationDirtyFiles(pending); err != nil {
 			return err
 		}
 		names := make([]string, 0, len(pending.Files))

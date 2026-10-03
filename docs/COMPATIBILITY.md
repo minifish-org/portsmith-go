@@ -65,6 +65,12 @@ execution advances the upstream baseline through a separate recoverable commit.
 These are new Go capabilities, not claims of parity with the original TS CLI.
 See [incremental migration](INCREMENTAL.md).
 
+Version-2 whole-project integration failures now reopen the final candidate for
+agent repair after a hash-checked, resumable rollback. Earlier checkpoints,
+frozen acceptance inputs and the Pith session are preserved. Failure reports are
+archived separately from the latest integration result. This repair loop is a
+native addition; legacy version-1 integration behavior is unchanged.
+
 ## Explicit non-claims
 
 - This product does not claim exhaustive equivalence with the TypeScript

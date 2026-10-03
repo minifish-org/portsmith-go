@@ -151,6 +151,33 @@ The final metadata commit has its own durable transaction, so interruption or
 failed Git hooks do not silently lose the baseline update. Resolve unrelated
 working-tree changes before resuming; do not delete journals to bypass checks.
 
+### Automatic integration repair
+
+Version-2 migration and sync execution treat a failed whole-project test run as
+repair feedback, even when the isolated candidate passed every cumulative judge:
+
+1. Archive the complete failure in the final task's `integration-failures/`
+   directory and persist a rollback transaction.
+2. Restore original writable files and remove only recorded additions. Check
+   every working-tree and index hash before changing files; unrelated edits,
+   changed staging or acceptance evidence stop recovery.
+3. Reopen only the final step, retaining its candidate, Pith session and earlier
+   accepted checkpoints. Feed the archived integration diagnostics to the agent.
+4. Rerun cumulative acceptance and the full project suite, then commit once.
+
+Rollback itself is resumable: the journal accepts a mixture of original and
+recorded new bytes after interruption. The archived report is hash-bound and
+never overwritten by a later successful run. A candidate-only pass cannot skip
+an outstanding integration repair. Default retries remain unlimited; a positive
+`--max-attempts` counts all generation and integration repair calls for each step
+within that invocation. At the limit, the target is clean and the repair request
+is saved; rerun the same command to continue.
+
+Cancellation, a provider error or a test process that cannot start remains a
+stop condition. Cancellation during integration preserves the pending
+transaction; the next run finishes that integration check before committing.
+No repair weakens frozen contracts, independent judges or commit gates.
+
 ## Validation scope
 
 Tests use real temporary Git repositories and a deterministic generation stub;

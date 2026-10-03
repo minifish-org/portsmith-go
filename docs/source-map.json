@@ -75,9 +75,9 @@
     "source": "src/modules.ts",
     "sha256": "8dc955c4f86caa5efcd8e08ae0e51d29a3c518d44a19e4b5b846bfd43623f74d",
     "exports": ["inspectModules", "migrateModules"],
-    "goFiles": ["internal/portsmith/modules.go"],
+    "goFiles": ["internal/portsmith/modules.go", "internal/portsmith/integration_repair.go"],
     "status": "ported",
-    "notes": "Version-2 batch/module workflow is Go, including needs-preparation preflight, additive baselines, per-module commits and recovery from the resumable journal."
+    "notes": "Version-2 batch/module workflow is Go, including needs-preparation preflight, additive baselines, per-module commits and recovery from the resumable journal. integration_repair.go adds the native whole-project failure feedback loop and hash-checked rollback; this is an extension beyond the pinned TypeScript workflow."
   },
   {
     "source": "src/oracle-worker.ts",
