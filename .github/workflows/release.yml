@@ -46,6 +46,7 @@ jobs:
         run: |
           go test -mod=readonly -count=1 -timeout=0 ./...
           go vet -mod=readonly ./...
+          go test -mod=readonly ./scripts/release.go ./scripts/release_test.go
       - name: Build release archives and checksums
         run: go run -mod=readonly ./scripts/release.go --version "$RELEASE_TAG" --out dist
       - name: Create a draft release for review

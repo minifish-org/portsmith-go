@@ -155,7 +155,11 @@ func licenseFiles() ([]archiveFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := add("licenses/Go-LICENSE.txt", filepath.Join(strings.TrimSpace(string(goRoot)), "LICENSE")); err != nil {
+	goLicense, err := goLicensePath(strings.TrimSpace(string(goRoot)))
+	if err != nil {
+		return nil, err
+	}
+	if err := add("licenses/Go-LICENSE.txt", goLicense); err != nil {
 		return nil, err
 	}
 	modules, err := command("go", "list", "-m", "-json", "-mod=readonly", "all")
@@ -196,6 +200,29 @@ func licenseFiles() ([]archiveFile, error) {
 		}
 	}
 	return files, nil
+}
+
+// Homebrew installs the Go license beside libexec rather than inside GOROOT.
+// Use only the installed toolchain's license, and fail if it is unavailable.
+func goLicensePath(goRoot string) (string, error) {
+	paths := []string{filepath.Join(goRoot, "LICENSE")}
+	if filepath.Base(filepath.Clean(goRoot)) == "libexec" {
+		paths = append(paths, filepath.Join(filepath.Dir(goRoot), "LICENSE"))
+	}
+	for _, path := range paths {
+		info, err := os.Stat(path)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return "", err
+		}
+		if !info.Mode().IsRegular() {
+			return "", fmt.Errorf("Go license is not a regular file: %s", path)
+		}
+		return path, nil
+	}
+	return "", fmt.Errorf("Go toolchain license not found in %s", strings.Join(paths, ", "))
 }
 
 func writeArchive(path string, files []archiveFile, windows bool) (err error) {

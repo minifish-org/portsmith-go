@@ -35,6 +35,8 @@ jobs:
         run: go test -mod=readonly -count=1 -timeout=0 ./...
       - name: Vet
         run: go vet -mod=readonly ./...
+      - name: Test release tooling
+        run: go test -mod=readonly ./scripts/release.go ./scripts/release_test.go
       - name: Build and smoke test
         run: |
           go build -mod=readonly -trimpath -o bin/portsmith ./cmd/portsmith

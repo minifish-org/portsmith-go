@@ -92,6 +92,12 @@ contains this component inventory. See `scripts/release.go` for packaging.
 
 ## Development tools
 
+The EventStream oracle in `internal/portsmith/testdata/oracle/` is copied from
+`badlogic/pi-mono` at the revision and path recorded in `provenance.json`. It is
+MIT-licensed; the original copyright and license are retained in `LICENSE.txt`.
+The frozen copy under `migration/judges/verification/` retains the same notice.
+These fixtures are used by tests and are not embedded in the product binary.
+
 Go and Git are external development tools required only to compile, verify and
 integrate migrated code. They are not bundled with the Portsmith binary and are
 not distributed under this notice.

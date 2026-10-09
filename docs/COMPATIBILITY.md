@@ -44,7 +44,7 @@ claimed.
   is reported through progress output. Equivalent behavior must be implemented
   as Go tool definitions or `ToolHooks` passed to `codingagent.NewToolRegistry`
   or the Pith resource loader. The adaptation is documented in
-  `docs/THIRD_PARTY.md` and `NOTES.md`.
+  `docs/THIRD_PARTY.md`.
 - **Process control.** Process-group setup and kill are split into
   `process_unix.go` and `process_windows.go` so the binary cross-compiles with
   `CGO_ENABLED=0`.
